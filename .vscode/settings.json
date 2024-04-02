@@ -1,0 +1,4 @@
+{
+    "bun.debugTerminal.stopOnEntry": false,
+    "bun.runtime": "/Users/yandexphp/.bun/bin/bun"
+}
