@@ -1,5 +1,4 @@
-import { promises as fs } from 'fs'
-import type { Page } from 'puppeteer'
+import {promises as fs} from 'fs'
 
 import type {
     TCreateDocumentProccess,
@@ -15,9 +14,7 @@ export const getUrlIssue = (id: number): string => `${PROTOCOL}://${process.env.
 
 export const getEkapUrlAPI = (): string => `${PROTOCOL}://${process.env.EKAP_API_HOSTNAME}` ?? ''
 
-export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, count = 100): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?per_page=${count}&query_id=${queryId}`
-
-export const getQueryId = (): string => process.env.QUERY_ID ?? ''
+export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, pageIndex = 1): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?page=${pageIndex}&query_id=${queryId}`
 
 export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/issues/${id}.xml?include=attachments`
 
@@ -35,26 +32,9 @@ export const getAuthEkapUsername = (): string => atob(process.env.AUTH_EKAP_USER
 
 export const getAuthEkapPass = (): string => atob(process.env.AUTH_EKAP_PASSWORD ?? '')
 
-export const getProjectId = (): string => process.env.PROJECT_ID ?? ''
-
 export const getProcessId = (): string => process.env.PAGE_EKAP_URL_ISSUE_FORM_CREATE?.split('/')?.at(-2) ?? ''
 
-export const bodyBuilder = (obj: { [key: string]: any }): string => Object.entries(obj).map(([key, value]) => `${key}=${value}`).join('&')
-
-export const saveCookies = async (page: Page) => {
-    const cookies = await page.cookies()
-    const cookieJson = JSON.stringify(cookies, null, 2)
-    await fs.writeFile('./data/cookies.json', cookieJson)
-}
-
-export const loadCookies = async (page: Page) => {
-    const cookieJson = await fs.readFile('./data/cookies.json', 'utf8')
-
-    if(cookieJson) {
-        const cookies = JSON.parse(cookieJson)
-        await page.setCookie(...cookies)
-    }
-}
+export const getColorHexOrDefColor = (color: string, colorDefault: string, flag: boolean = false): string => `#${flag ? color : colorDefault}`
 
 export const notExistFileOfCreate = async (fileName: string, defaultContent: string = '') => {
     const isFile = await fs.exists(fileName)
@@ -71,7 +51,6 @@ export const writeFailRecordXml = async (id: number | string, ids: (string|undef
         await notExistFileOfCreate(fileName, '[]')
 
         const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
-        console.log('data', data)
         const jsonData = JSON.parse(data)
 
         jsonData.push({
@@ -92,7 +71,6 @@ export const writeSuccessRecordXml = async (id: number | string, ids: (string|un
         await notExistFileOfCreate(fileName, '[]')
 
         const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
-        console.log('data', data)
         const jsonData = JSON.parse(data)
 
         jsonData.push({
@@ -104,6 +82,40 @@ export const writeSuccessRecordXml = async (id: number | string, ids: (string|un
     } catch (e) {
         console.error(e)
     }
+}
+
+export const getSuccessLoadedIds = async () => {
+    try {
+        const fileName = './data/successRecordXml.json'
+
+        await notExistFileOfCreate(fileName, '[]')
+
+        const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
+        const jsonData = JSON.parse(data) as ({ [id: string]: string })[]
+
+        return jsonData.map(({ id }) => id)
+    } catch (e) {
+        console.error(e)
+    }
+
+    return []
+}
+
+export const getFailedLoadedIds = async () => {
+    try {
+        const fileName = './data/failRecordXml.json'
+
+        await notExistFileOfCreate(fileName, '[]')
+
+        const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
+        const jsonData = JSON.parse(data) as ({ [id: string]: string })[]
+
+        return jsonData.map(({ id }) => id)
+    } catch (e) {
+        console.error(e)
+    }
+
+    return []
 }
 
 export const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))
@@ -143,7 +155,9 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
         const foundIdx = data.findIndex((v) => v === value)
 
         if(foundIdx === -1) {
-            throw new Error(`Not found value "${value}" from columnId ${columnId}` + fieldCode ? ` of fieldCode "${fieldCode}"` : '')
+            const errorMessage = `Not found value "${value}" from columnId ${columnId}` + (fieldCode ? ` of fieldCode "${fieldCode}"` : '')
+            console.error(errorMessage, dataSave)
+            throw new Error(errorMessage)
         }
 
         return String(dataSave[foundIdx])
@@ -164,16 +178,20 @@ export const putValueFromOptionsOrFieldValue = (value: string | null, options: T
 
 export const parseDateRange = (dateString: string) => {
     try {
-        const [startDateStr, endDateStr] = dateString.split('-')
+        const matchDate = dateString.match(/(\d{2}\.\d{2}\.\d{4})/g)
 
-        const parseSingleDate = (dateStr: string): Date => {
-            const [day, month, year] = dateStr.split('.').map(Number)
-            return new Date(year, month - 1, day)
-        }
+        if(matchDate) {
+            const [startDateStr, endDateStr] = matchDate
 
-        return {
-            startDate: parseSingleDate(startDateStr).toISOString(),
-            endDate: parseSingleDate(endDateStr).toISOString()
+            const parseSingleDate = (dateStr: string): Date => {
+                const [day, month, year] = dateStr.split('.').map(Number)
+                return new Date(year, month - 1, day)
+            }
+
+            return {
+                startDate: parseSingleDate(startDateStr).toISOString(),
+                endDate: parseSingleDate(endDateStr).toISOString()
+            }
         }
     } catch (e) {
         console.error(e)
@@ -186,11 +204,16 @@ export const parseDateRange = (dateString: string) => {
 }
 
 export const sendToEKapModuleNewBPDocument = async (body: TCreateDocumentProccess, processId: string, ekapConfigRequest: RequestInit): Promise<boolean> => {
-    const { status } = await fetch(`${getEkapUrlAPI()}/bpm/process/start/${processId}`, {
+    console.log('sendToEKapModuleNewBPDocument create a new bp/process', processId)
+    const response = await fetch(`${getEkapUrlAPI()}/bpm/process/start/${processId}`, {
         ...ekapConfigRequest,
         method: 'POST',
         body: JSON.stringify(body)
     })
 
-    return status === 200
+    const result = await response.text()
+
+    console.log('sendToEKapModuleNewBPDocument response', response.status, result)
+
+    return response.status === 200
 }
