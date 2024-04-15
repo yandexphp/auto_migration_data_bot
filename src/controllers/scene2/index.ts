@@ -64,6 +64,26 @@ export class SceneSecond {
 
             const db = new DB()
 
+            const ENUM_FORM_COMPONENTS = {
+                EKAP1_ID: 'EKAP1_ID',
+                ORGANIZATION: 'organization',
+                PERIOD: 'period',
+                INSURANCE: 'insurance',
+                IS_MANDATORY: 'is_mandatory',
+                POLICYHOLDER: 'Policyholder',
+                MAIN_ACTIVITIES: 'main_activities',
+                INFO_ABOUT_OBJECT: 'information_about_the_object',
+                FRANCHISE: 'franchise',
+                NECESSITY_INCLUDE_FUND: 'necessity_to_include_fund',
+                INSURANCE_TERRITORY: 'insurance_territory',
+                INSURANCE_PREMIUM: 'insurance_premium',
+                START_DATE: 'start_date',
+                END_DATE: 'end_date',
+                INSURANCE_PREMIUM_SUM: 'Insurance_premium_sum',
+                TERMS_PAYMENT: 'terms_of_payment',
+                STATUS: 'status1',
+            }
+
             const Iteration = async (projectId: string) => {
                 const migrationInfo = {
                     failLoaded: 0,
@@ -109,8 +129,6 @@ export class SceneSecond {
 
                         return 0
                     })
-
-                    // const isN document.querySelector('li.next.page')
 
                     console.log('issue identifiers', issueIds.length, issueIds)
 
@@ -231,7 +249,7 @@ export class SceneSecond {
                         } else {
                             const xmlObject = xmlParser.parse(xmlContent)
 
-                            if (!xmlObject) continue;
+                            if (!xmlObject) continue
                             const xmlDocument = xmlObject as TXml
 
                             // await page.goto(getEkapUrlPageNew(), { waitUntil: 'networkidle0' })
@@ -264,10 +282,20 @@ export class SceneSecond {
                                 const resProcessDetail = await fetch(`${ekapApiUrl}/bpm/definition/bp/${processId}`, ekapConfigRequest)
                                 console.log('resProcessDetail', resProcessDetail.status, resProcessDetail.status === 200 ? 'bpm:successLoad' : '')
 
+                                if(resProcessDetail.status !== 200) {
+                                    console.error(resProcessDetail.url, resProcessDetail.status)
+                                    throw new Error(`resProcessDetail response ${resProcessDetail.url} ${resProcessDetail.status}`)
+                                }
+
                                 const {formId} = await resProcessDetail.json()
 
                                 const resFormDetail = await fetch(`${ekapApiUrl}/form/${formId}`, ekapConfigRequest)
                                 console.log('resFormDetail', resFormDetail.status, resFormDetail.status === 200 ? 'form:successLoad' : '')
+
+                                if(resFormDetail.status !== 200) {
+                                    console.error(resFormDetail.url, resFormDetail.status)
+                                    throw new Error(`resFormDetail response ${resFormDetail.url} ${resFormDetail.status}`)
+                                }
 
                                 const {...rest} = await resFormDetail.json()
 
@@ -286,62 +314,66 @@ export class SceneSecond {
                                             let fieldCode = '' as string | null
 
                                             switch (key) {
-                                                case 'organization':
-                                                    fieldCode = '29';
+                                                case ENUM_FORM_COMPONENTS.ORGANIZATION:
+                                                    fieldCode = '29'
                                                     break;
-                                                case 'period':
-                                                    fieldCode = '319';
+                                                case ENUM_FORM_COMPONENTS.PERIOD:
+                                                    fieldCode = '319'
                                                     break;
-                                                case 'insurance':
-                                                    fieldCode = '720';
+                                                case ENUM_FORM_COMPONENTS.INSURANCE:
+                                                    fieldCode = '720'
                                                     break;
-                                                case 'is_mandatory':
-                                                    fieldCode = '682';
+                                                case ENUM_FORM_COMPONENTS.IS_MANDATORY:
+                                                    fieldCode = '682'
                                                     break;
-                                                case 'Policyholder':
-                                                    fieldCode = '683';
+                                                case ENUM_FORM_COMPONENTS.POLICYHOLDER:
+                                                    fieldCode = '683'
                                                     break;
-                                                case 'main_activities':
-                                                    fieldCode = '684';
+                                                case ENUM_FORM_COMPONENTS.MAIN_ACTIVITIES:
+                                                    fieldCode = '684'
                                                     break;
-                                                case 'information_about_the_object':
-                                                    fieldCode = '685';
+                                                case ENUM_FORM_COMPONENTS.INFO_ABOUT_OBJECT:
+                                                    fieldCode = '685'
                                                     break;
-                                                case 'franchise':
-                                                    fieldCode = '709';
+                                                case ENUM_FORM_COMPONENTS.FRANCHISE:
+                                                    fieldCode = '709'
                                                     break;
-                                                case 'necessity_to_include_fund':
-                                                    fieldCode = '686';
+                                                case ENUM_FORM_COMPONENTS.NECESSITY_INCLUDE_FUND:
+                                                    fieldCode = '686'
                                                     break;
-                                                case 'insurance_territor':
-                                                case 'insurance_territory':
-                                                    fieldCode = '687';
+                                                case ENUM_FORM_COMPONENTS.INSURANCE_TERRITORY:
+                                                    fieldCode = '687'
                                                     break;
-                                                case 'insurance_premium':
-                                                    fieldCode = '702';
+                                                case ENUM_FORM_COMPONENTS.INSURANCE_PREMIUM:
+                                                    fieldCode = '702'
                                                     break;
-                                                case 'start_date':
-                                                case 'end_date':
-                                                    fieldCode = '734';
+                                                case ENUM_FORM_COMPONENTS.START_DATE:
+                                                case ENUM_FORM_COMPONENTS.END_DATE:
+                                                    fieldCode = '734'
                                                     break;
-                                                case 'Insurance_premium_sum':
-                                                    fieldCode = '740';
+                                                case ENUM_FORM_COMPONENTS.INSURANCE_PREMIUM_SUM:
+                                                    fieldCode = '740'
                                                     break;
-                                                case 'terms_of_payment':
-                                                    fieldCode = '853';
+                                                case ENUM_FORM_COMPONENTS.TERMS_PAYMENT:
+                                                    fieldCode = '853'
                                                     break;
-                                                case 'status1':
-                                                    fieldCode = null;
+                                                case ENUM_FORM_COMPONENTS.STATUS:
+                                                case ENUM_FORM_COMPONENTS.EKAP1_ID:
+                                                    fieldCode = null
+
+                                                    switch(key) {
+                                                        case ENUM_FORM_COMPONENTS.STATUS:
+                                                            value = putValueFromOptionsOrFieldValue(xmlDocument.issue.status['@_name'], options)
+                                                            break;
+                                                        case ENUM_FORM_COMPONENTS.EKAP1_ID:
+                                                            value = xmlDocument.issue.id
+                                                            break;
+                                                        default:
+                                                    }
                                                     break;
                                                 default:
                                                     console.warn('continue by key', key)
-                                                    return;
-                                            }
-
-                                            if (fieldCode === null) {
-                                                if (key === 'status1') {
-                                                    value = putValueFromOptionsOrFieldValue(xmlDocument.issue.status['@_name'], options)
-                                                }
+                                                    return
                                             }
 
                                             if (fieldCode) {
@@ -355,8 +387,8 @@ export class SceneSecond {
                                             }
 
                                             if (accessType === 'REQUIRED' && !value) value = ' '
-                                            if (fieldCode === '734' && !Array.isArray(value) && key === 'start_date') value = parseDateRange(value)?.startDate // 734 is Date field
-                                            if (fieldCode === '734' && !Array.isArray(value) && key === 'end_date') value = parseDateRange(value)?.endDate // 734 is Date field
+                                            if (fieldCode === '734' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = parseDateRange(value)?.startDate
+                                            if (fieldCode === '734' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = parseDateRange(value)?.endDate
                                             if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
 
                                             return {id, value}
@@ -384,6 +416,7 @@ export class SceneSecond {
                             }
 
                             console.log('FLAG_ERROR for body', FLAG_ERROR)
+                            console.log('body.formDataDto.sections', body.formDataDto.sections)
 
                             let isSuccessfully = false
 

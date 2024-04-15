@@ -124,6 +124,10 @@ export const getFieldByXml = (xml: TXml, field: string) => {
     return xml.issue.custom_fields.custom_field.find(({ '@_id': id }) => id === field)?.value ?? null
 }
 
+export const extractNumbers = (s: string): number[] => s.split(' ')
+    .map(part => parseInt(part))
+    .filter(number => !isNaN(number))
+
 export const putValueFromDictionaryOrFieldValue = async (value: string | null, fieldCode: string | null | undefined, columnId: string | null, ekapConfigRequest: RequestInit) => {
     try {
         if(!columnId) {
@@ -133,6 +137,7 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
         const resProcessDetail = await fetch(`${getEkapUrlAPI()}/admin/dictionaries/input-values/${columnId}`, ekapConfigRequest)
         const dataSave = await resProcessDetail.json() as string[]
         let data = [...dataSave]
+        let foundIdx = -1
 
         if(fieldCode && ['683', '29'].includes(fieldCode)) {
             data = data.map(x => {
@@ -148,11 +153,17 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
                 .replaceAll('»', '')
                 .replaceAll('"', '')
                 .toUpperCase()
-        } else if(fieldCode && fieldCode === '319') {
-            value = String(value).replace(' год', '')
-        }
 
-        const foundIdx = data.findIndex((v) => v === value)
+            foundIdx = data.findIndex((v) => v === value)
+        } else if(fieldCode && fieldCode === '319') {
+            const [curYear, curQuarter] = extractNumbers(String(value))
+
+            foundIdx = data
+                .map(extractNumbers)
+                .findIndex(([year, quarter]) => year === curYear && quarter === curQuarter)
+        } else {
+            foundIdx = data.findIndex((v) => v === value)
+        }
 
         if(foundIdx === -1) {
             const errorMessage = `Not found value "${value}" from columnId ${columnId}` + (fieldCode ? ` of fieldCode "${fieldCode}"` : '')
