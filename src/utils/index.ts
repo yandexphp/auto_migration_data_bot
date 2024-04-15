@@ -165,6 +165,8 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
             foundIdx = data.findIndex((v) => v === value)
         }
 
+        console.log('founded index by "', value,'" from data', data)
+
         if(foundIdx === -1) {
             const errorMessage = `Not found value "${value}" from columnId ${columnId}` + (fieldCode ? ` of fieldCode "${fieldCode}"` : '')
             console.error(errorMessage, dataSave)
