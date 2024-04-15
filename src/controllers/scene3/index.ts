@@ -24,17 +24,17 @@ import {
 import type {TCreateDocumentProccess, TFormProcessCustomDetail, TSectionFormDataInput, TXml} from '../../interfaces'
 import {DB} from '../../services/db'
 
-export class SceneSecond {
+export class SceneThree {
     private static page: Page
 
     constructor(page: Page) {
-        SceneSecond.page = page
-        SceneSecond.init()
+        SceneThree.page = page
+        SceneThree.init()
     }
 
     public static async init() {
         try {
-            const page = SceneSecond.page
+            const page = SceneThree.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
                 ignoreAttributes: false,
@@ -94,7 +94,7 @@ export class SceneSecond {
                 }
 
                 const dzo = db.getDZO(projectId)
-                const queryId = dzo.getQueryIdByForm6()
+                const queryId = dzo.getQueryIdByForm7()
 
                 console.log('Iteration by projectId', `"${projectId}"`, 'queryId', `"${queryId}"`, '- starting')
 

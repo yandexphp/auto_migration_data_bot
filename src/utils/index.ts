@@ -4,7 +4,7 @@ import type {
     TCreateDocumentProccess,
     TFormProcessSectionPropInputOptionsItem,
     TXml
-} from '../controllers/scene2/interfaces.ts'
+} from '../interfaces'
 
 const PROTOCOL = 'https'
 

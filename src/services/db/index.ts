@@ -44,7 +44,15 @@ class DZO {
         return this.projectId
     }
 
-    getQueryId() {
-        return this.getAll().find(({ name }) => name === this.getProjectId())?.id ?? null
+    getQueryIdByForm5() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form5 ?? null
+    }
+
+    getQueryIdByForm6() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form6 ?? null
+    }
+
+    getQueryIdByForm7() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form7 ?? null
     }
 }

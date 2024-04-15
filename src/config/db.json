@@ -2,179 +2,204 @@
   "ekap": {
     "projects": [
       {
-        "id": "1047",
         "name": "zarechnoe_riskmanagement",
         "label": "Управление рисками  АО СП Заречное",
         "url": "/projects/zarechnoe_riskmanagement?jump=issues",
-        "url_form_5": "/projects/zarechnoe_riskmanagement/issues?query_id=1047"
+        "form5": "1047",
+        "form6": "1046",
+        "form7": "1044"
       },
       {
-        "id": "1039",
         "name": "vg_riskmanagement",
         "label": "Управление рисками АО Волковгеология",
         "url": "/projects/vg_riskmanagement?jump=issues",
-        "url_form_5": "/projects/vg_riskmanagement/issues?query_id=1039"
+        "form5": "1039",
+        "form6": "1038",
+        "form7": "1037"
       },
       {
-        "id": "1134",
         "name": "passports_kazakaton",
         "label": "Управление рисками АО Каустик",
         "url": "/projects/passports_kazakaton?jump=issues",
-        "url_form_5": "/projects/passports_kazakaton/issues?query_id=1134"
+        "form5": "1134",
+        "form6": "1135",
+        "form7": "1136"
       },
       {
-        "id": "1043",
         "name": "akbastau_riskmanagement",
         "label": "Управление рисками АО СП Акбастау",
         "url": "/projects/akbastau_riskmanagement?jump=issues",
-        "url_form_5": "/projects/akbastau_riskmanagement/issues?query_id=1043"
+        "form5": "1043",
+        "form6": "1041",
+        "form7": "1257"
       },
       {
-        "id": "1048",
         "name": "umz_riskmanagement",
         "label": "Управление рисками АО УМЗ",
         "url": "/projects/umz_riskmanagement?jump=issues",
-        "url_form_5": "/projects/umz_riskmanagement/issues?query_id=1048"
+        "form5": "1048",
+        "form6": "1049",
+        "form7": "1050"
       },
       {
-        "id": "913",
         "name": "kaptech_riskmanagement",
         "label": "Управление рисками ТОО KAP Technology",
         "url": "/projects/kaptech_riskmanagement?jump=issues",
-        "url_form_5": "/projects/kaptech_riskmanagement/issues?query_id=913"
+        "form5": "913",
+        "form6": "921",
+        "form7": "832"
       },
       {
-        "id": "1128",
         "name": "ttk_riskmanagement",
         "label": "Управление рисками ТОО «KAP Logistics»",
         "url": "/projects/ttk_riskmanagement?jump=issues",
-        "url_form_5": "/projects/ttk_riskmanagement/issues?query_id=1128"
+        "form5": "1128",
+        "form6": "1129",
+        "form7": "1130"
       },
       {
-        "id": "1075",
         "name": "passports_kazakatoo",
         "label": "Управление рисками ТОО «Qorğan Security»",
         "url": "/projects/passports_kazakatoo?jump=issues",
-        "url_form_5": "/projects/passports_kazakatoo/issues?query_id=1075"
+        "form5": "1075",
+        "form6": "1074",
+        "form7": "1076"
       },
       {
-        "id": "1054",
         "name": "appak_riskmanagement",
         "label": "Управление рисками ТОО АППАК",
         "url": "/projects/appak_riskmanagement?jump=issues",
-        "url_form_5": "/projects/appak_riskmanagement/issues?query_id=1054"
+        "form5": "1054",
+        "form6": "1053",
+        "form7": "1052"
       },
       {
-        "id": "1158",
         "name": "baiken_riskmanagement",
         "label": "Управление рисками ТОО Байкен-U",
         "url": "/projects/baiken_riskmanagement?jump=issues",
-        "url_form_5": "/projects/baiken_riskmanagement/issues?query_id=1158"
+        "form5": "1158",
+        "form6": "1056",
+        "form7": "1058"
       },
       {
-        "id": "1063",
         "name": "ortalyk_riskmanagement",
         "label": "Управление рисками ТОО ДП Орталык",
         "url": "/projects/ortalyk_riskmanagement?jump=issues",
-        "url_form_5": "/projects/ortalyk_riskmanagement/issues?query_id=1063"
+        "form5": "1063",
+        "form6": "1062",
+        "form7": "1064"
       },
       {
-        "id": "1066",
         "name": "ivt_riskmanagement",
         "label": "Управление рисками ТОО Институт высоких технологий",
         "url": "/projects/ivt_riskmanagement?jump=issues",
-        "url_form_5": "/projects/ivt_riskmanagement/issues?query_id=1066"
+        "form5": "1066",
+        "form6": "1067",
+        "form7": "1065"
       },
       {
-        "id": "1069",
         "name": "sauran_riskmanagement",
         "label": "Управление рисками ТОО Казатомпром-SaUran",
         "url": "/projects/sauran_riskmanagement?jump=issues",
-        "url_form_5": "/projects/sauran_riskmanagement/issues?query_id=1069"
+        "form5": "1069",
+        "form6": "1068",
+        "form7": "1070"
       },
       {
-        "id": "1072",
         "name": "karatau_riskmanagement",
         "label": "Управление рисками ТОО Каратау",
         "url": "/projects/karatau_riskmanagement?jump=issues",
-        "url_form_5": "/projects/karatau_riskmanagement/issues?query_id=1072"
+        "form5": "1072",
+        "form6": "1073",
+        "form7": "1071"
       },
       {
-        "id": "1139",
         "name": "protocol_order_skzkazatompron",
         "label": "Управление рисками ТОО МК KazSilicon",
         "url": "/projects/protocol_order_skzkazatompron?jump=issues",
-        "url_form_5": "/projects/protocol_order_skzkazatompron/issues?query_id=1139"
+        "form5": "1139",
+        "form6": "1138",
+        "form7": "1137"
       },
       {
-        "id": "1110",
         "name": "ru6_riskmanagement",
         "label": "Управление рисками ТОО РУ-6",
         "url": "/projects/ru6_riskmanagement?jump=issues",
-        "url_form_5": "/projects/ru6_riskmanagement/issues?query_id=1110"
+        "form5": "1110",
+        "form6": "1111",
+        "form7": "1112"
       },
       {
-        "id": "1115",
         "name": "semizbai_riskmanagement",
         "label": "Управление рисками ТОО Семизбай-U",
         "url": "/projects/semizbai_riskmanagement?jump=issues",
-        "url_form_5": "/projects/semizbai_riskmanagement/issues?query_id=1115"
+        "form5": "1115",
+        "form6": "1114",
+        "form7": "1113"
       },
       {
-        "id": "1116",
         "name": "skzu_riskmanagement",
         "label": "Управление рисками ТОО СКЗ-U",
         "url": "/projects/skzu_riskmanagement?jump=issues",
-        "url_form_5": "/projects/skzu_riskmanagement/issues?query_id=1116"
+        "form5": "1116",
+        "form6": "1117",
+        "form7": "1118"
       },
       {
-        "id": "1140",
         "name": "passports_kazakatop",
         "label": "Управление рисками ТОО СКЗ-Казатомпром",
         "url": "/projects/passports_kazakatop?jump=issues",
-        "url_form_5": "/projects/passports_kazakatop/issues?query_id=1140"
+        "form5": "1140",
+        "form6": "1141",
+        "form7": "1142"
       },
       {
-        "id": "1060",
         "name": "budenovskoe_riskmanagement",
         "label": "Управление рисками ТОО СП Буденовское",
         "url": "/projects/budenovskoe_riskmanagement?jump=issues",
-        "url_form_5": "/projects/budenovskoe_riskmanagement/issues?query_id=1060"
+        "form5": "1060",
+        "form6": "1061",
+        "form7": "1059"
       },
       {
-        "id": "1121",
         "name": "inkai_riskmanagement",
         "label": "Управление рисками ТОО СП Инкай",
         "url": "/projects/inkai_riskmanagement?jump=issues",
-        "url_form_5": "/projects/inkai_riskmanagement/issues?query_id=1121"
+        "form5": "1121",
+        "form6": "1120",
+        "form7": "1119"
       },
       {
-        "id": "1122",
         "name": "katko_riskmanagement",
         "label": "Управление рисками ТОО СП КАТКО",
         "url": "/projects/katko_riskmanagement?jump=issues",
-        "url_form_5": "/projects/katko_riskmanagement/issues?query_id=1122"
+        "form5": "1122",
+        "form6": "1123",
+        "form7": "1124"
       },
       {
-        "id": "1109",
         "name": "kyzylkum_riskmanagement",
         "label": "Управление рисками ТОО СП Хорасан-U (ТОО Кызылкум)",
         "url": "/projects/kyzylkum_riskmanagement?jump=issues",
-        "url_form_5": "/projects/kyzylkum_riskmanagement/issues?query_id=1109"
+        "form5": "1109",
+        "form6": "1082",
+        "form7": "2022"
       },
       {
-        "id": "1127",
         "name": "ughk_riskmanagement",
         "label": "Управление рисками ТОО СП ЮГХК",
         "url": "/projects/ughk_riskmanagement?jump=issues",
-        "url_form_5": "/projects/ughk_riskmanagement/issues?query_id=1127"
+        "form5": "1127",
+        "form6": "1126",
+        "form7": "1125"
       },
       {
-        "id": "1133",
         "name": "uranen_riskmanagement",
         "label": "Управление рисками ТОО Уранэнерго",
         "url": "/projects/uranen_riskmanagement?jump=issues",
-        "url_form_5": "/projects/uranen_riskmanagement/issues?query_id=1133"
+        "form5": "1133",
+        "form6": "1132",
+        "form7": "5561"
       }
     ]
   }
