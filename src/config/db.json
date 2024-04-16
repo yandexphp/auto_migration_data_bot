@@ -181,17 +181,17 @@
         "name": "kyzylkum_riskmanagement",
         "label": "Управление рисками ТОО СП Хорасан-U (ТОО Кызылкум)",
         "url": "/projects/kyzylkum_riskmanagement?jump=issues",
-        "form5": "1109",
-        "form6": "1082",
-        "form7": "2022"
+        "form5": "1109,2029",
+        "form6": "1082,2028",
+        "form7": "2022,1083"
       },
       {
         "name": "ughk_riskmanagement",
         "label": "Управление рисками ТОО СП ЮГХК",
         "url": "/projects/ughk_riskmanagement?jump=issues",
-        "form5": "1127",
-        "form6": "1126",
-        "form7": "1125"
+        "form5": "1127,6810,6811,6812,6809",
+        "form6": "1126,6813,6814,6815,6816",
+        "form7": "1125,6817,6818,6819,6820"
       },
       {
         "name": "uranen_riskmanagement",

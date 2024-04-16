@@ -44,15 +44,15 @@ class DZO {
         return this.projectId
     }
 
-    getQueryIdByForm5() {
-        return this.getAll().find(({ name }) => name === this.getProjectId())?.form5 ?? null
+    getQueryIdsByForm5() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form5?.split(',') ?? []
     }
 
-    getQueryIdByForm6() {
-        return this.getAll().find(({ name }) => name === this.getProjectId())?.form6 ?? null
+    getQueryIdsByForm6() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form6?.split(',') ?? []
     }
 
-    getQueryIdByForm7() {
-        return this.getAll().find(({ name }) => name === this.getProjectId())?.form7 ?? null
+    getQueryIdsByForm7() {
+        return this.getAll().find(({ name }) => name === this.getProjectId())?.form7?.split(',') ?? []
     }
 }
