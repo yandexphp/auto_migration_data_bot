@@ -1,9 +1,7 @@
 import puppeteer from 'puppeteer'
 
 import {getAuthPass, getAuthUsername, getUrlLoginPage} from './src/utils'
-import {SceneOne} from './src/controllers/scene1'
-// import {SceneSecond} from './src/controllers/scene2'
-// import {SceneThree} from './src/controllers/scene3'
+import {SceneThree} from './src/controllers/scene3'
 
 const browser = await puppeteer.launch({
     headless: false,
@@ -39,7 +37,7 @@ page
         if (url.endsWith('/login') && method === 'POST') {
             if (status === 302) {
                 console.info('Authorization Successfully!')
-                new SceneOne(page)
+                new SceneThree(page)
                 // new SceneSecond(page)
                 // new SceneThree(page)
             } else {
@@ -56,7 +54,7 @@ const startBrowser = async () => {
         await page.type('input[id="username"]', getAuthUsername())
         await page.type('input[id="password"]', getAuthPass())
     } catch {
-        return new SceneOne(page)
+        return new SceneThree(page)
         // return new SceneSecond(page)
         // return new SceneThree(page)
     }

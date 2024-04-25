@@ -13,7 +13,7 @@ import {
     getSuccessLoadedIds,
     getUrlIssueAttachmentXML,
     getUrlIssueOfProjectByQueryId,
-    parseDateRange,
+    parseDate,
     putValueFromDictionaryOrFieldValue,
     putValueFromOptionsOrFieldValue,
     sendToEKapModuleNewBPDocument,
@@ -70,20 +70,24 @@ export class SceneTwo {
                 EKAP1_ID: 'EKAP1_ID',
                 ORGANIZATION: 'organization',
                 PERIOD: 'period',
-                INSURANCE: 'insurance',
                 IS_MANDATORY: 'is_mandatory',
-                POLICYHOLDER: 'Policyholder',
-                MAIN_ACTIVITIES: 'main_activities',
-                INFO_ABOUT_OBJECT: 'information_about_the_object',
                 FRANCHISE: 'franchise',
-                NECESSITY_INCLUDE_FUND: 'necessity_to_include_fund',
-                INSURANCE_TERRITORY: 'insurance_territory',
-                INSURANCE_PREMIUM: 'insurance_premium',
                 START_DATE: 'start_date',
                 END_DATE: 'end_date',
-                INSURANCE_PREMIUM_SUM: 'Insurance_premium_sum',
-                TERMS_PAYMENT: 'terms_of_payment',
                 STATUS: 'status1',
+                TASK_DESCRIPTION: 'taskDescription',
+                SYSTEM_DESCRIPTION: 'system_description',
+                PROVIDER: 'Provider',
+                NUMBER_OF_DOCUMENT: 'number_of_document',
+                PURCHASING_METHOD: 'Purchasing_method',
+                PLACE_GOODS: 'place_goods',
+                TOTAL_SUM: 'total_sum',
+                SUM: 'sum',
+                PERCENT: 'percent',
+                TOTAL_SUM_INSURED: 'Total_sum_insured',
+                TOTAL_INSURENCE_AMOUNT_OF_CONTRACT: 'Total_insurence_amount_of_contract',
+                SPECIAL_CONDITIONS: 'special_conditions',
+                RESPONSIBLE_DEPARTMENT: 'responsible_department_F6',
             }
 
             const Iteration = async (projectId: string) => {
@@ -331,48 +335,62 @@ export class SceneTwo {
                                                 let fieldCode = '' as string | null
 
                                                 switch (key) {
-                                                    case ENUM_FORM_COMPONENTS.ORGANIZATION:
-                                                        fieldCode = '29'
-                                                        break;
                                                     case ENUM_FORM_COMPONENTS.PERIOD:
                                                         fieldCode = '319'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.INSURANCE:
-                                                        fieldCode = '720'
+                                                    case ENUM_FORM_COMPONENTS.ORGANIZATION:
+                                                        fieldCode = '29'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.TASK_DESCRIPTION:
+                                                        fieldCode = '689'
                                                         break;
                                                     case ENUM_FORM_COMPONENTS.IS_MANDATORY:
                                                         fieldCode = '682'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.POLICYHOLDER:
-                                                        fieldCode = '683'
+                                                    case ENUM_FORM_COMPONENTS.SYSTEM_DESCRIPTION:
+                                                        fieldCode = '690'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.MAIN_ACTIVITIES:
-                                                        fieldCode = '684'
+                                                    case ENUM_FORM_COMPONENTS.PROVIDER:
+                                                        fieldCode = '691'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.INFO_ABOUT_OBJECT:
-                                                        fieldCode = '685'
+                                                    case ENUM_FORM_COMPONENTS.NUMBER_OF_DOCUMENT:
+                                                        fieldCode = '692'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.PURCHASING_METHOD:
+                                                        fieldCode = '230'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.PLACE_GOODS:
+                                                        fieldCode = '582'
                                                         break;
                                                     case ENUM_FORM_COMPONENTS.FRANCHISE:
                                                         fieldCode = '709'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.NECESSITY_INCLUDE_FUND:
-                                                        fieldCode = '686'
+                                                    case ENUM_FORM_COMPONENTS.TOTAL_SUM:
+                                                        fieldCode = '700'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.INSURANCE_TERRITORY:
-                                                        fieldCode = '687'
-                                                        break;
-                                                    case ENUM_FORM_COMPONENTS.INSURANCE_PREMIUM:
+                                                    case ENUM_FORM_COMPONENTS.SUM:
                                                         fieldCode = '702'
                                                         break;
                                                     case ENUM_FORM_COMPONENTS.START_DATE:
+                                                        fieldCode = '732'
+                                                        break
                                                     case ENUM_FORM_COMPONENTS.END_DATE:
-                                                        fieldCode = '734'
+                                                        fieldCode = '733'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.INSURANCE_PREMIUM_SUM:
-                                                        fieldCode = '740'
+                                                    case ENUM_FORM_COMPONENTS.PERCENT:
+                                                        fieldCode = '785'
                                                         break;
-                                                    case ENUM_FORM_COMPONENTS.TERMS_PAYMENT:
+                                                    case ENUM_FORM_COMPONENTS.TOTAL_SUM_INSURED:
+                                                        fieldCode = '851'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.TOTAL_INSURENCE_AMOUNT_OF_CONTRACT:
+                                                        fieldCode = '852'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.SPECIAL_CONDITIONS:
                                                         fieldCode = '853'
+                                                        break;
+                                                    case ENUM_FORM_COMPONENTS.RESPONSIBLE_DEPARTMENT:
+                                                        fieldCode = '293'
                                                         break;
                                                     case ENUM_FORM_COMPONENTS.STATUS:
                                                     case ENUM_FORM_COMPONENTS.EKAP1_ID:
@@ -404,8 +422,8 @@ export class SceneTwo {
                                                 }
 
                                                 if (accessType === 'REQUIRED' && !value) value = ' '
-                                                if (fieldCode === '734' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = parseDateRange(value)?.startDate
-                                                if (fieldCode === '734' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = parseDateRange(value)?.endDate
+                                                if (fieldCode === '732' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = parseDate(value) ?? value
+                                                if (fieldCode === '733' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = parseDate(value) ?? value
                                                 if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
 
                                                 return {id, value}

@@ -189,17 +189,33 @@ export const putValueFromOptionsOrFieldValue = (value: string | null, options: T
     return options.find(x => x.label === value)?.value ?? value ?? ''
 }
 
+export const parseSingleDate = (dateStr: string): Date => {
+    const [day, month, year] = dateStr.split('.').map(Number)
+    return new Date(year, month - 1, day)
+}
+
+export const parseDate = (dateString: string) => {
+    try {
+        const matchDate = dateString.match(/(\d{2}\.\d{2}\.\d{4})/g)
+
+        if(matchDate) {
+            const [dateStr] = matchDate
+
+            return parseSingleDate(dateStr).toISOString()
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return dateString
+}
+
 export const parseDateRange = (dateString: string) => {
     try {
         const matchDate = dateString.match(/(\d{2}\.\d{2}\.\d{4})/g)
 
         if(matchDate) {
             const [startDateStr, endDateStr] = matchDate
-
-            const parseSingleDate = (dateStr: string): Date => {
-                const [day, month, year] = dateStr.split('.').map(Number)
-                return new Date(year, month - 1, day)
-            }
 
             return {
                 startDate: parseSingleDate(startDateStr).toISOString(),
