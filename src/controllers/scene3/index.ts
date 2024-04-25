@@ -24,17 +24,17 @@ import {
 import type {TCreateDocumentProccess, TFormProcessCustomDetail, TSectionFormDataInput, TXml} from '../../interfaces'
 import {DB} from '../../services/db'
 
-export class SceneTwo {
+export class SceneThree {
     private static page: Page
 
     constructor(page: Page) {
-        SceneTwo.page = page
-        SceneTwo.init()
+        SceneThree.page = page
+        SceneThree.init()
     }
 
     public static async init() {
         try {
-            const page = SceneTwo.page
+            const page = SceneThree.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
                 ignoreAttributes: false,
@@ -93,7 +93,7 @@ export class SceneTwo {
                 }
 
                 const dzo = db.getDZO(projectId)
-                const queryIds = dzo.getQueryIdsByForm6()
+                const queryIds = dzo.getQueryIdsByForm7()
 
                 for (const queryId of queryIds) {
                     console.log('Iteration ids', queryIds)
@@ -284,7 +284,7 @@ export class SceneTwo {
 
                                 const formProcessDetail = await page.evaluate(async (processId, ekapApiUrl, ekapConfigRequest) => {
                                     const resProcessDetail = await fetch(`${ekapApiUrl}/bpm/definition/bp/${processId}`, ekapConfigRequest)
-                                    console.log('resProcessDetail', resProcessDetail.status, resProcessDetail.status === 200 ? 'bpm:successLoad' : '')
+                                    console.log('resProcessDetail', processId, resProcessDetail.status, resProcessDetail.status === 200 ? 'bpm:successLoad' : '')
 
                                     if (resProcessDetail.status !== 200) {
                                         console.error(resProcessDetail.url, resProcessDetail.status)
@@ -511,6 +511,6 @@ export class SceneTwo {
             console.error(e)
         }
 
-        console.log('SceneTwo done.')
+        console.log('SceneThree done.')
     }
 }
