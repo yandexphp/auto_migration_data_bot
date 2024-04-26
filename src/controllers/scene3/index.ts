@@ -2,6 +2,7 @@ import type {Page} from 'puppeteer'
 import {XMLParser} from 'fast-xml-parser'
 
 import {
+    dateToISOString,
     getAuthEkapPass,
     getAuthEkapUsername,
     getColorHexOrDefColor,
@@ -402,8 +403,8 @@ export class SceneThree {
                                                 }
 
                                                 if (accessType === 'REQUIRED' && !value) value = ' '
-                                                if (fieldCode === '732' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = parseDate(value) ?? value
-                                                if (fieldCode === '733' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = parseDate(value) ?? value
+                                                if (fieldCode === '732' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = dateToISOString(parseDate(value) ?? value)
+                                                if (fieldCode === '733' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = dateToISOString(parseDate(value) ?? value)
                                                 if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
 
                                                 return {id, value}

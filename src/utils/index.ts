@@ -210,6 +210,8 @@ export const parseDate = (dateString: string) => {
     return dateString
 }
 
+export const dateToISOString = (date: string): string => new Date(date).toISOString()
+
 export const parseDateRange = (dateString: string) => {
     try {
         const matchDate = dateString.match(/(\d{2}\.\d{2}\.\d{4})/g)
