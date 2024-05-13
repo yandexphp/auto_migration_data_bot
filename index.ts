@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer'
 
 import {getAuthPass, getAuthUsername, getUrlLoginPage} from './src/utils'
-import {SceneThree} from './src/controllers/scene3'
+import {SceneTwo} from './src/controllers/scene2'
 
 const browser = await puppeteer.launch({
     headless: false,
@@ -37,9 +37,7 @@ page
         if (url.endsWith('/login') && method === 'POST') {
             if (status === 302) {
                 console.info('Authorization Successfully!')
-                new SceneThree(page)
-                // new SceneSecond(page)
-                // new SceneThree(page)
+                new SceneTwo(page)
             } else {
                 console.warn('Authorization failed, please check your login or password')
                 throw new Error('Failed to login')
@@ -54,9 +52,7 @@ const startBrowser = async () => {
         await page.type('input[id="username"]', getAuthUsername())
         await page.type('input[id="password"]', getAuthPass())
     } catch {
-        return new SceneThree(page)
-        // return new SceneSecond(page)
-        // return new SceneThree(page)
+        return new SceneTwo(page)
     }
 
     await Promise.all([

@@ -1,4 +1,5 @@
 import {promises as fs} from 'fs'
+import moment from 'moment'
 
 import type {
     TCreateDocumentProccess,
@@ -194,14 +195,20 @@ export const parseSingleDate = (dateStr: string): Date => {
     return new Date(year, month - 1, day)
 }
 
+export const convertToISO = (dateString: string) => {
+    const formats = ['YYYY-MM-DD', 'YYYY.MM.DD', 'DD-MM-YYYY', 'DD.MM.YYYY']
+    const date = moment(dateString, formats)
+    return date.toISOString()
+}
+
 export const parseDate = (dateString: string) => {
     try {
-        const matchDate = dateString.match(/(\d{2}\.\d{2}\.\d{4})/g)
+        const matchDate = dateString.match(/(\d{4}[.-]\d{2}[.-]\d{2}|\d{2}[.-]\d{2}[.-]\d{4})/g)
 
         if(matchDate) {
             const [dateStr] = matchDate
 
-            return parseSingleDate(dateStr).toISOString()
+            return convertToISO(dateStr)
         }
     } catch (e) {
         console.error(e)

@@ -56,13 +56,13 @@ export class SceneTwo {
                     page.click('button[type="submit"]'),
                     page.waitForNavigation({waitUntil: 'networkidle0'}),
                 ])
+
+                await sleep(2000)
             } catch {
                 console.warn('Username or password element in DOM is not found, or you are already authorized.')
             }
 
             const ekapAccessToken = await page.evaluate(() => (localStorage.getItem('EKAP_APP_AUTH_TOKEN')))
-
-            console.log('React Frontend eKap accessToken', ekapAccessToken)
 
             const db = new DB()
 
@@ -224,23 +224,25 @@ export class SceneTwo {
                             const xmlContent = await page.evaluate(async (xmlUrl) => {
                                 try {
                                     const response = await fetch(xmlUrl, {
-                                        headers: {
-                                            'accept': '*/*',
-                                            'accept-language': 'ru,ru-RU;q=0.9,en-US;q=0.8,en;q=0.7',
-                                            'contenttype': 'application/json',
-                                            'datatype': 'json',
-                                            'if-none-match': 'W/"dda50ab0a6e22949702fb9cbd6ba22a6-gzip"',
-                                            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-                                            'sec-ch-ua-mobile': '?0',
-                                            'sec-ch-ua-platform': '"Windows"',
-                                            'sec-fetch-dest': 'empty',
-                                            'sec-fetch-mode': 'cors',
-                                            'sec-fetch-site': 'same-origin',
-                                            'x-redmine-api-key': 'f7b6ff8906e7374faf31fff2d99486a8901df198'
+                                        "headers": {
+                                            "accept": "*/*",
+                                            "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+                                            "contenttype": "application/json",
+                                            "datatype": "json",
+                                            "sec-ch-ua": "\"Chromium\";v=\"124\", \"Google Chrome\";v=\"124\", \"Not-A.Brand\";v=\"99\"",
+                                            "sec-ch-ua-mobile": "?0",
+                                            "sec-ch-ua-platform": "\"macOS\"",
+                                            "sec-fetch-dest": "empty",
+                                            "sec-fetch-mode": "cors",
+                                            "sec-fetch-site": "same-origin",
+                                            "x-redmine-api-key": "02bc6557baef9963b64963f72d242b4e093d3352"
                                         },
-                                        referrerPolicy: 'strict-origin-when-cross-origin',
-                                        mode: 'cors',
-                                        credentials: 'include'
+                                        "referrer": "https://ekap.kazatomprom.kz/projects/zarechnoe_riskmanagement/issues?page=1&query_id=1046",
+                                        "referrerPolicy": "strict-origin-when-cross-origin",
+                                        "body": null,
+                                        "method": "GET",
+                                        "mode": "cors",
+                                        "credentials": "omit"
                                     })
 
                                     return await response.text()
@@ -422,9 +424,13 @@ export class SceneTwo {
                                                 }
 
                                                 if (accessType === 'REQUIRED' && !value) value = ' '
-                                                if (fieldCode === '732' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = parseDate(value) ?? value
-                                                if (fieldCode === '733' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = parseDate(value) ?? value
-                                                if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
+                                                if (
+                                                    (fieldCode === '732' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) ||
+                                                    (fieldCode === '733' && !Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE)
+                                                ) {
+                                                    value = value ? parseDate(value) : ''
+                                                }
+                                                if (['DICTIONARY', 'RADIO', 'SELECT'].includes(type) && !Array.isArray(value)) value = [value]
 
                                                 return {id, value}
                                             } catch (e) {
@@ -451,7 +457,7 @@ export class SceneTwo {
                                 }
 
                                 console.log('FLAG_ERROR for body', FLAG_ERROR)
-                                console.log('body.formDataDto.sections', body.formDataDto.sections)
+                                console.log('body request', body)
 
                                 let isSuccessfully = false
 
