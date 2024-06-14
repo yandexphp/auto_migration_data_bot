@@ -131,3 +131,127 @@ export type TFormProcessSectionPropInputOptionsItem = {
     label: string
     value: string
 }
+
+export type TDictionaryFormDetails = {
+    createdAt: string
+    createdBy: {
+        firstName: string
+        fullName: string
+        id: string
+        lastName: string
+        patronymicName: string | null
+    }
+    description: string
+    id: string
+    moduleId: string
+    moduleName: string
+    name: string
+    rootVersionId: string
+    sectionId: string
+    sectionName: string
+    sections: TDictionaryFormSection[]
+}
+
+export type TDictionaryFormSection = {
+    defaultSection: boolean
+    id: string
+    inputs: TDictionaryFormSectionInputs[]
+    order: number
+    title: string
+}
+
+export type TDictionaryFormSectionInputs = {
+    defaultInput: boolean
+    id: string
+    key: string | null
+    order: number
+    properties: {
+        fieldCheckError: string
+        helpText: string
+        initialValue: string
+        layout: number
+        mask: string
+        maxCharacterCheckError: string
+        maxCheckError: string
+        minCharacterCheckError: string
+        minCheckError: string
+        perceived: string
+        placeholder: string
+        tooltipText: string
+        columnId: string
+        columnInputType: string
+        dictionaryId: string
+        selectType: string
+    }
+    required: boolean
+    title: string
+    type: string
+}
+
+export type TXmlWithFiles = {
+    issue: TXmlIssue
+}
+
+export type TXmlIssue = {
+    id:                    string
+    project:               EntityRef
+    tracker:               EntityRef
+    status:                EntityRef
+    priority:              EntityRef
+    author:                EntityRef
+    subject:               string
+    description:           string
+    start_date:            string
+    due_date:              string
+    done_ratio:            string
+    is_private:            string
+    estimated_hours:       string
+    total_estimated_hours: string
+    created_on:            string
+    updated_on:            string
+    closed_on:             string
+    attachments:           Attachments
+}
+
+export interface Attachments {
+    attachment: Attachment
+    "@_type":   string
+}
+
+export interface Attachment {
+    id:           string
+    filename:     string
+    filesize:     string
+    content_type: string
+    description:  string
+    content_url:  string
+    author:       EntityRef
+    created_on:   string
+}
+
+export interface EntityRef {
+    "@_id":   string
+    "@_name": string
+}
+
+export interface IAttachmentUploadFormData {
+    file: File
+    title: string
+    bpId: string
+    description: string
+    url: string
+    size: string
+    filename: string
+    userMetadata: string
+    name: string
+}
+
+export interface IAttachmentUploaded {
+    title: string
+    description: string
+    url: string
+    size: number
+    filename: string
+    user_metadata: string
+    bp_id: string
+}

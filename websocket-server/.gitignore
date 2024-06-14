@@ -119,7 +119,6 @@ out
 
 .nuxt
 dist
-data
 
 # Gatsby files
 
@@ -174,7 +173,3 @@ data
 
 # Finder (MacOS) folder config
 .DS_Store
-/.vscode/
-
-# Others
-websocket-issues-dump.json

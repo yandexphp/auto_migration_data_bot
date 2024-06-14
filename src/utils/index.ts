@@ -2,6 +2,7 @@ import {promises as fs} from 'fs'
 import moment from 'moment'
 
 import type {
+    Attachment,
     TCreateDocumentProccess,
     TFormProcessSectionPropInputOptionsItem,
     TXml
@@ -21,17 +22,17 @@ export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://$
 
 export const getUrlIssuesListByProject = (projectId: string, count = 9000): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?per_page=${count}`
 
-export const getAuthUsername = (): string => atob(process.env.AUTH_USERNAME ?? '')
+export const getAuthUsername = (): string => decodeURIComponent(atob(process.env.AUTH_USERNAME ?? ''))
 
-export const getAuthPass = (): string => atob(process.env.AUTH_PASSWORD ?? '')
+export const getAuthPass = (): string => decodeURIComponent(atob(process.env.AUTH_PASSWORD ?? ''))
 
 export const getEkapUrlPage = (): string => `${PROTOCOL}://${process.env.EKAP_BASE_HOSTNAME}${process.env.PAGE_EKAP_URL_ISSUE_LIST}`
 
 export const getEkapUrlPageNew = (): string => `${PROTOCOL}://${process.env.EKAP_BASE_HOSTNAME}${process.env.PAGE_EKAP_URL_ISSUE_FORM_CREATE}`
 
-export const getAuthEkapUsername = (): string => atob(process.env.AUTH_EKAP_USERNAME ?? '')
+export const getAuthEkapUsername = (): string => decodeURIComponent(atob(process.env.AUTH_EKAP_USERNAME ?? ''))
 
-export const getAuthEkapPass = (): string => atob(process.env.AUTH_EKAP_PASSWORD ?? '')
+export const getAuthEkapPass = (): string => decodeURIComponent(atob(process.env.AUTH_EKAP_PASSWORD ?? ''))
 
 export const getProcessId = (): string => process.env.PAGE_EKAP_URL_ISSUE_FORM_CREATE?.split('/')?.at(-2) ?? ''
 
@@ -190,6 +191,8 @@ export const putValueFromOptionsOrFieldValue = (value: string | null, options: T
     return options.find(x => x.label === value)?.value ?? value ?? ''
 }
 
+export const getOneFieldXML = <T, K extends keyof T>(obj: T, key: K): T[K] => obj[key]
+
 export const parseSingleDate = (dateStr: string): Date => {
     const [day, month, year] = dateStr.split('.').map(Number)
     return new Date(year, month - 1, day)
@@ -254,4 +257,30 @@ export const sendToEKapModuleNewBPDocument = async (body: TCreateDocumentProcces
     console.log('sendToEKapModuleNewBPDocument response', response.status, result)
 
     return response.status === 200
+}
+
+export const sendToEKapModuleNewDictionaryRecord = async <T>(body: T, ekapConfigRequest: RequestInit): Promise<boolean> => {
+    console.log('sendToEKapModuleNewDictionaryRecord create a new dictionary record')
+    const response = await fetch(`${getEkapUrlAPI()}/dictionary-entries`, {
+        ...ekapConfigRequest,
+        method: 'POST',
+        body: JSON.stringify(body)
+    })
+
+    const result = await response.json()
+
+    console.log('sendToEKapModuleNewDictionaryRecord response', response.status, result)
+
+    return response.status === 200
+}
+
+export const getDictionaryValues = async (dictionaryId: string, ekapConfigRequest: RequestInit): Promise<string[]> => {
+    try {
+        const response = await fetch(`${getEkapUrlAPI()}/admin/dictionaries/input-values/${dictionaryId}`, { ...ekapConfigRequest })
+        return await response.json() ?? []
+    } catch (e) {
+        console.error(e)
+    }
+
+    return []
 }
