@@ -8,7 +8,7 @@ import {
     getAuthEkapUsername,
     getColorHexOrDefColor,
     getDictionaryValues,
-    getEkapUrlAPI,
+    getEkapUrlAPI, getEkapUrlDictionaryEntry,
     getEkapUrlPage,
     getOneFieldXML,
     getProcessId,
@@ -558,16 +558,16 @@ export class SceneFour {
                                         const ekapV2UserAuthorId = await searchEkapUserIdByUsername(person.login, ekapConfigRequest)
 
                                         if(ekapV2UserAuthorId !== null) {
-                                            const updateAuthorEkap = await updateAuthorInEkapBPDocument<TRequestUpdateAuthorInEkapBPDocument>({
+                                            await updateAuthorInEkapBPDocument<TRequestUpdateAuthorInEkapBPDocument>({
                                                 processInstanceId: newDoc.id,
                                                 userId: ekapV2UserAuthorId,
                                                 userName: [person.lastname, person.firstname].filter(Boolean).join(' '),
                                                 userType: 'AUTHOR'
                                             }, ekapConfigRequest)
-
-                                            console.log('updateAuthorEkap', updateAuthorEkap)
                                         }
                                     }
+
+                                    console.log('Entry URL', getEkapUrlDictionaryEntry(newDoc.id))
                                 }
                             }
                         } catch (e) {

@@ -33,6 +33,8 @@ export const getEkapUrlPage = (): string => `${PROTOCOL}://${process.env.EKAP_BA
 
 export const getEkapUrlPageNew = (): string => `${PROTOCOL}://${process.env.EKAP_BASE_HOSTNAME}${process.env.PAGE_EKAP_URL_ISSUE_FORM_CREATE}`
 
+export const getEkapUrlDictionaryEntry = (uuid: string): string => `${PROTOCOL}://${process.env.EKAP_BASE_HOSTNAME}${process.env.PAGE_EKAP_URL_ISSUE_FORM_CREATE?.replace('/new', '')}/entries/${uuid}`
+
 export const getAuthEkapUsername = (): string => decodeURIComponent(atob(process.env.AUTH_EKAP_USERNAME ?? ''))
 
 export const getAuthEkapPass = (): string => decodeURIComponent(atob(process.env.AUTH_EKAP_PASSWORD ?? ''))
