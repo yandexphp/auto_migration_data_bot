@@ -21,6 +21,14 @@ bun install
 
 ### 🍙 Run project
 
+#### Run WebSocket Server (Only one times)
+
+```bash
+cd ./websocket-server && bun run index.ts
+```
+
+#### Run One Instance Thread (Your can used the many times)
+
 ```bash
 bun run index.ts
 ```

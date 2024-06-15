@@ -1,3 +1,5 @@
+import {sendToEKapModuleNewDictionaryRecordContent, updateAuthorInEkapBPDocument} from "../utils";
+
 export type TXml = {
     '?xml': {
         '@_version': string
@@ -254,4 +256,95 @@ export interface IAttachmentUploaded {
     filename: string
     user_metadata: string
     bp_id: string
+}
+
+export type TXmlUserProfile = {
+    "?xml": {
+        "@_version": string
+        "@_encoding": string
+    }
+    person: {
+        person: {
+            id: string
+            login: string
+            admin: string
+            firstname: string
+            lastname: string
+            mail: string
+            created_on: string
+            last_login_on: string
+            department: TXmlUserProfileDepartment[]
+            custom_fields: {
+                custom_field: TXmlUserProfileCustomField[]
+            }
+            phones: string
+            mobile_phones: string
+            address: string
+            skype: string
+            job_title: string
+            middlename: string
+            gender: string
+            twitter: string
+            facebook: string
+            linkedin: string
+            background: string
+            is_system: string
+        }
+        attachments: {
+            attachments: string[]
+        }
+        _total_count: string
+        _offset: string
+        _limit: string
+    }
+}
+
+export type TXmlUserProfileDepartment = {
+    _id: string
+    _name: string
+}
+
+export type TXmlUserProfileCustomField = {
+    _id: string
+    _name: string
+    value: string
+}
+
+export type TResponseUpdateAuthorInEkapBPDocument = {
+    id: string
+    processInstanceId: string
+    userId: string
+    userName: string
+    userType: 'AUTHOR' | 'RESPONSIBLE' | 'SIGNER' | 'APPROVER'
+    createdAt: string
+}
+
+export type TRequestUpdateAuthorInEkapBPDocument = Omit<TResponseUpdateAuthorInEkapBPDocument, 'id' | 'createdAt'>
+
+export type TResponseSendToEKapModuleNewDictionaryRecordContent = {
+    id: string
+    dictionaryId: string
+    dictionaryName: string
+    isActual: boolean
+    sectionEntries: TBodySectionDictionaryRecordContent[]
+    createdAt: string
+    createdBy: {
+        id: string
+        firstName: string
+        lastName: string
+        patronymicName: string | null
+        fullName: string
+    }
+    updatedAt: null
+    updatedBy: null
+}
+
+export interface TBodySectionDictionaryRecordContent {
+    inputEntries: TBodyInputEntryDictionaryRecordContent[]
+    sectionId: string | null
+}
+
+export interface TBodyInputEntryDictionaryRecordContent {
+    inputId: string
+    value: string | string[]
 }

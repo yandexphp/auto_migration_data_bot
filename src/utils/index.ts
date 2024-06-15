@@ -2,9 +2,10 @@ import {promises as fs} from 'fs'
 import moment from 'moment'
 
 import type {
-    Attachment,
     TCreateDocumentProccess,
     TFormProcessSectionPropInputOptionsItem,
+    TResponseSendToEKapModuleNewDictionaryRecordContent,
+    TResponseUpdateAuthorInEkapBPDocument,
     TXml
 } from '../interfaces'
 
@@ -19,6 +20,8 @@ export const getEkapUrlAPI = (): string => `${PROTOCOL}://${process.env.EKAP_API
 export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, pageIndex = 1): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?page=${pageIndex}&query_id=${queryId}`
 
 export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/issues/${id}.xml?include=attachments`
+
+export const getUrlUserProfileAttachmentXML = (userId: string) => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/people/${userId}.xml?include=attachments`
 
 export const getUrlIssuesListByProject = (projectId: string, count = 9000): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?per_page=${count}`
 
@@ -274,6 +277,29 @@ export const sendToEKapModuleNewDictionaryRecord = async <T>(body: T, ekapConfig
     return response.status === 200
 }
 
+export const sendToEKapModuleNewDictionaryRecordContent = async <T>(body: T, ekapConfigRequest: RequestInit): Promise<TResponseSendToEKapModuleNewDictionaryRecordContent|null> => {
+    try {
+        console.log('sendToEKapModuleNewDictionaryRecordContent create a new dictionary record')
+        const response = await fetch(`${getEkapUrlAPI()}/dictionary-entries`, {
+            ...ekapConfigRequest,
+            method: 'POST',
+            body: JSON.stringify(body)
+        })
+
+        const result = await response.json()
+
+        console.log('sendToEKapModuleNewDictionaryRecordContent response', response.status, result)
+
+        if(response.status === 200) {
+            return result
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return null
+}
+
 export const getDictionaryValues = async (dictionaryId: string, ekapConfigRequest: RequestInit): Promise<string[]> => {
     try {
         const response = await fetch(`${getEkapUrlAPI()}/admin/dictionaries/input-values/${dictionaryId}`, { ...ekapConfigRequest })
@@ -283,4 +309,50 @@ export const getDictionaryValues = async (dictionaryId: string, ekapConfigReques
     }
 
     return []
+}
+
+export const searchEkapUserIdByUsername = async (username: string, ekapConfigRequest: RequestInit): Promise<string|null> => {
+    try {
+        console.log(`searchEkapUserIdByUsername get userID by username ${username}`)
+
+        const response = await fetch(`${getEkapUrlAPI()}/users/search/old/ekap?username=${username}`, {
+            ...ekapConfigRequest,
+        })
+
+        const userId = await response.json()
+
+        console.log('searchEkapUserIdByUsername response', response.status, userId)
+
+        if(response.status === 200) {
+            return userId
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return null
+}
+
+export const updateAuthorInEkapBPDocument = async <T>(body: T, ekapConfigRequest: RequestInit): Promise<TResponseUpdateAuthorInEkapBPDocument | null> => {
+    try {
+        console.log('updateAuthorInEkapBPDocument update', body)
+
+        const response = await fetch(`${getEkapUrlAPI()}/bpm/old/ekap/`, {
+            ...ekapConfigRequest,
+            method: 'POST',
+            body: JSON.stringify(body)
+        })
+
+        const result = await response.json()
+
+        console.log('updateAuthorInEkapBPDocument response', response.status, result)
+
+        if(response.status === 200) {
+            return result
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return null
 }

@@ -12,16 +12,17 @@ import {
     getEkapUrlPage,
     getOneFieldXML,
     getProcessId,
-    getUrlIssueAttachmentXML,
-    parseDate,
-    sendToEKapModuleNewDictionaryRecord,
-    sleep,
+    getUrlIssueAttachmentXML, getUrlUserProfileAttachmentXML,
+    parseDate, searchEkapUserIdByUsername,
+    sendToEKapModuleNewDictionaryRecordContent,
+    sleep, updateAuthorInEkapBPDocument,
 } from '../../utils'
 import {EWebSocketEvent, WebSocketConnection, WebSocketData} from '../../websocket'
 import type {
     IAttachmentUploaded,
     IAttachmentUploadFormData,
-    TDictionaryFormDetails,
+    TBodySectionDictionaryRecordContent,
+    TDictionaryFormDetails, TRequestUpdateAuthorInEkapBPDocument, TXmlUserProfile,
     TXmlWithFiles
 } from '../../interfaces'
 import {nanoid} from '../../utils/nanoid.ts'
@@ -31,17 +32,7 @@ const redmineAPIKey = process.env.REDMINE_API_KEY ?? ''
 interface TBody {
     dictionaryId: string
     isActual: boolean
-    sectionEntries: TBodySection[]
-}
-
-interface TBodySection {
-    inputEntries: TBodyInputEntry[]
-    sectionId: string | null
-}
-
-interface TBodyInputEntry {
-    inputId: string
-    value: string | string[]
+    sectionEntries: TBodySectionDictionaryRecordContent[]
 }
 
 export class SceneFour {
@@ -51,6 +42,9 @@ export class SceneFour {
         SceneFour.page = page
         SceneFour.init()
     }
+
+    public static getSuccessLoadedList = () => WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
+    public static getFailedLoadedList = () => WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
 
     public static async init() {
         try {
@@ -163,20 +157,14 @@ export class SceneFour {
                 }, migrationInfo)
 
                 for (const selectedId of ids) {
-                    const successLoadedList = WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
-                    const failedLoadedList = WebSocketData.issues.filter(({ isError }) => isError).map(({ issueId }) => issueId)
-
                     if (!selectedId) {
                         console.log('skip not found selectedId', selectedId)
                         continue
                     }
 
-                    console.log('selectedId', selectedId)
-                    console.log('successLoadedList', successLoadedList)
-                    console.log('failedLoadedList', failedLoadedList)
-
-                    if (successLoadedList.includes(selectedId)) {
+                    if (SceneFour.getSuccessLoadedList().includes(selectedId)) {
                         migrationInfo.countLoaded++
+                        console.log(` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
 
                         await page.evaluate((selectedId, migrationInfo) => {
                             const logLabelElement = document.querySelector('div[data-log-label]')
@@ -192,10 +180,9 @@ export class SceneFour {
                             }
                         }, selectedId, migrationInfo)
                         continue
-                    }
-
-                    if (failedLoadedList.includes(selectedId)) {
+                    } else if (SceneFour.getFailedLoadedList().includes(selectedId)) {
                         migrationInfo.failLoaded++
+                        console.log(` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
 
                         await page.evaluate((selectedId, migrationInfo) => {
                             const logLabelElement = document.querySelector('div[data-log-label]')
@@ -268,6 +255,39 @@ export class SceneFour {
                         const xmlDocument = xmlObject as TXmlWithFiles
 
                         console.log('xmlDocument', xmlDocument)
+
+                        const authorIssueId = xmlDocument.issue.author["@_id"]
+
+                        const xmlContentUserProfile = await page.evaluate(async (xmlUrl, redmineAPIKey) => {
+                            try {
+                                const response = await fetch(xmlUrl, {
+                                    "headers": {
+                                        "accept": "*/*",
+                                        "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+                                        "contenttype": "application/json",
+                                        "datatype": "json",
+                                        "sec-ch-ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"",
+                                        "sec-ch-ua-mobile": "?0",
+                                        "sec-ch-ua-platform": "\"macOS\"",
+                                        "sec-fetch-dest": "empty",
+                                        "sec-fetch-mode": "cors",
+                                        "sec-fetch-site": "same-origin",
+                                        "x-redmine-api-key": redmineAPIKey
+                                    },
+                                    "referrerPolicy": "strict-origin-when-cross-origin",
+                                    "body": null,
+                                    "method": "GET",
+                                    "mode": "cors",
+                                    "credentials": "omit"
+                                })
+
+                                return await response.text()
+                            } catch (err) {
+                                console.error(err)
+                            }
+
+                            return null
+                        }, getUrlUserProfileAttachmentXML(authorIssueId), redmineAPIKey)
 
                         const body: TBody = {
                             dictionaryId: getProcessId(),
@@ -485,7 +505,71 @@ export class SceneFour {
                         console.log('body', body)
 
                         try {
-                            isSuccessfully = await sendToEKapModuleNewDictionaryRecord<TBody>(body, ekapConfigRequest)
+                            if (SceneFour.getSuccessLoadedList().includes(selectedId)) {
+                                migrationInfo.countLoaded++
+                                console.log(` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
+
+                                await page.evaluate((selectedId, migrationInfo) => {
+                                    const logLabelElement = document.querySelector('div[data-log-label]')
+
+                                    if (logLabelElement) {
+                                        const labelElement = document.createElement('p')
+                                        labelElement.style.fontSize = '12px'
+                                        labelElement.style.padding = '2px 4px'
+                                        labelElement.style.margin = '0'
+                                        labelElement.style.color = '#92eaa0'
+                                        labelElement.innerText = ` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
+                                        logLabelElement.prepend(labelElement)
+                                    }
+                                }, selectedId, migrationInfo)
+                                continue
+                            } else if (SceneFour.getFailedLoadedList().includes(selectedId)) {
+                                migrationInfo.failLoaded++
+                                console.log(` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
+
+                                await page.evaluate((selectedId, migrationInfo) => {
+                                    const logLabelElement = document.querySelector('div[data-log-label]')
+
+                                    if (logLabelElement) {
+                                        const labelElement = document.createElement('p')
+                                        labelElement.style.fontSize = '12px'
+                                        labelElement.style.padding = '2px 4px'
+                                        labelElement.style.margin = '0'
+                                        labelElement.style.color = '#ea9295'
+                                        labelElement.innerText = ` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
+                                        logLabelElement.prepend(labelElement)
+                                    }
+                                }, selectedId, migrationInfo)
+                                continue
+                            } else {
+                                const newDoc = await sendToEKapModuleNewDictionaryRecordContent<TBody>(body, ekapConfigRequest)
+                                isSuccessfully = newDoc !== null
+
+                                if(xmlContentUserProfile && newDoc !== null) {
+                                    const xmlObjectUserProfile = xmlParser.parse(xmlContentUserProfile)
+
+                                    if (xmlObjectUserProfile) {
+                                        const xmlDocumentUserProfile = xmlObjectUserProfile as TXmlUserProfile
+
+                                        console.log('xmlDocumentUserProfile', xmlDocumentUserProfile)
+
+                                        const { person } = xmlDocumentUserProfile.person
+
+                                        const ekapV2UserAuthorId = await searchEkapUserIdByUsername(person.login, ekapConfigRequest)
+
+                                        if(ekapV2UserAuthorId !== null) {
+                                            const updateAuthorEkap = await updateAuthorInEkapBPDocument<TRequestUpdateAuthorInEkapBPDocument>({
+                                                processInstanceId: newDoc.id,
+                                                userId: ekapV2UserAuthorId,
+                                                userName: [person.lastname, person.firstname].filter(Boolean).join(' '),
+                                                userType: 'AUTHOR'
+                                            }, ekapConfigRequest)
+
+                                            console.log('updateAuthorEkap', updateAuthorEkap)
+                                        }
+                                    }
+                                }
+                            }
                         } catch (e) {
                             console.error(e)
                         }
@@ -539,7 +623,7 @@ export class SceneFour {
                                 logLabelElement.prepend(labelElement)
                             }
 
-                            console.log('sendToEKapModuleNewDictionaryRecord isSuccessfully', isSuccessfully, body, xmlDocument)
+                            console.log('sendToEKapModuleNewDictionaryRecordContent isSuccessfully', isSuccessfully, body, xmlDocument)
                         }, body, isSuccessfully, selectedId, getProcessId(), migrationInfo, xmlDocument, color)
                     }
                 }
