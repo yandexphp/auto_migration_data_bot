@@ -96,7 +96,7 @@ export class SceneFour {
             const procedureMigration = async (pageIndex = 1) => {
                 console.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = `https://ekap.kazatomprom.kz/projects/internal_regulations/issues?c%5B%5D=subject&c%5B%5D=start_date&c%5B%5D=due_date&c%5B%5D=attachments&c%5B%5D=description&f%5B%5D=tracker_id&f%5B%5D=&group_by=project&op%5Btracker_id%5D=%3D&page=${pageIndex}&per_page=750&set_filter=1&sort=id%3Adesc&utf8=%E2%9C%93&v%5Btracker_id%5D%5B%5D=251`
+                const url = `https://ekap.kazatomprom.kz/projects/internal_regulations/issues?c%5B%5D=subject&c%5B%5D=start_date&c%5B%5D=due_date&c%5B%5D=attachments&c%5B%5D=description&f%5B%5D=&group_by=project&per_page=750&set_filter=1&sort=id%3Adesc&utf8=%E2%9C%93&page=${pageIndex}`
                 await page.goto(url, {waitUntil: 'networkidle0'})
 
                 const nodeLinks = await page.$$('table.list.issues td.id a')
@@ -176,24 +176,6 @@ export class SceneFour {
                                 labelElement.style.margin = '0'
                                 labelElement.style.color = '#92eaa0'
                                 labelElement.innerText = ` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
-                                logLabelElement.prepend(labelElement)
-                            }
-                        }, selectedId, migrationInfo)
-                        continue
-                    } else if (SceneFour.getFailedLoadedList().includes(selectedId)) {
-                        migrationInfo.failLoaded++
-                        console.log(` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
-
-                        await page.evaluate((selectedId, migrationInfo) => {
-                            const logLabelElement = document.querySelector('div[data-log-label]')
-
-                            if (logLabelElement) {
-                                const labelElement = document.createElement('p')
-                                labelElement.style.fontSize = '12px'
-                                labelElement.style.padding = '2px 4px'
-                                labelElement.style.margin = '0'
-                                labelElement.style.color = '#ea9295'
-                                labelElement.innerText = ` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
                                 logLabelElement.prepend(labelElement)
                             }
                         }, selectedId, migrationInfo)
@@ -431,6 +413,16 @@ export class SceneFour {
                                                 if (uploadResponse.status === 200) {
                                                     console.log('File uploaded successfully')
                                                     return await uploadResponse.json() as IAttachmentUploaded
+                                                } else if (uploadResponse.status === 409) {
+                                                    return {
+                                                        title,
+                                                        description,
+                                                        url,
+                                                        size: Number(size),
+                                                        filename,
+                                                        user_metadata: userMetadata,
+                                                        bp_id: bpId,
+                                                    } as IAttachmentUploaded
                                                 }
                                             }
 
@@ -519,24 +511,6 @@ export class SceneFour {
                                         labelElement.style.margin = '0'
                                         labelElement.style.color = '#92eaa0'
                                         labelElement.innerText = ` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
-                                        logLabelElement.prepend(labelElement)
-                                    }
-                                }, selectedId, migrationInfo)
-                                continue
-                            } else if (SceneFour.getFailedLoadedList().includes(selectedId)) {
-                                migrationInfo.failLoaded++
-                                console.log(` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
-
-                                await page.evaluate((selectedId, migrationInfo) => {
-                                    const logLabelElement = document.querySelector('div[data-log-label]')
-
-                                    if (logLabelElement) {
-                                        const labelElement = document.createElement('p')
-                                        labelElement.style.fontSize = '12px'
-                                        labelElement.style.padding = '2px 4px'
-                                        labelElement.style.margin = '0'
-                                        labelElement.style.color = '#ea9295'
-                                        labelElement.innerText = ` - Issue ${selectedId} was is loaded as Failed [ERROR]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`
                                         logLabelElement.prepend(labelElement)
                                     }
                                 }, selectedId, migrationInfo)
