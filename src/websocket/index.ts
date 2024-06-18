@@ -19,10 +19,39 @@ export let WebSocketData: ILocalState = {
     issues: []
 }
 
-interface IWebSocketMessage {
-    type: EWebSocketEvent
+export interface IMessageIssue {
+    type: EWebSocketEvent.ISSUE,
     data: ILocalState
 }
+
+export interface IMessageProcess {
+    type: EWebSocketEvent.PROCESS_START | EWebSocketEvent.PROCESS_END | EWebSocketEvent.PROCESS_PENDING
+    data: {
+        process: {
+            id: string
+        }
+    }
+}
+
+export interface IMessagePing {
+    type: EWebSocketEvent.PING | EWebSocketEvent.PONG
+    data: never
+}
+
+export interface ISocketResponseMessageProcess {
+    type: EWebSocketEvent.PROCESS_START | EWebSocketEvent.PROCESS_END | EWebSocketEvent.PROCESS_PENDING
+    data: {
+        process: {
+            id: string
+            isPending: boolean
+        }
+    }
+}
+
+type TWebSocketMessage =
+    | IMessageIssue
+    | IMessageProcess
+    | IMessagePing;
 
 export let ws: WebSocket | null = null
 export let WebSocketExit = false
@@ -48,6 +77,9 @@ export enum EWebSocketEvent {
     PING = 'PING',
     PONG = 'PONG',
     ISSUE ='ISSUE',
+    PROCESS_START = 'PROCESS_START',
+    PROCESS_END = 'PROCESS_END',
+    PROCESS_PENDING = 'PROCESS_PENDING',
 }
 
 export const WebSocketReconnect = () => {
@@ -104,7 +136,7 @@ export const WebSocketConnection = () => {
 
         ws.on('message', (message: string) => {
             try {
-                const { type, data } = JSON.parse(message) as IWebSocketMessage
+                const { type, data } = JSON.parse(message) as TWebSocketMessage
 
                 switch (type) {
                     case EWebSocketEvent.ISSUE:
@@ -116,6 +148,15 @@ export const WebSocketConnection = () => {
                         break
                     case EWebSocketEvent.PONG:
                         console.info('WebSocket', EWebSocketEvent.PONG)
+                        break
+                    case EWebSocketEvent.PROCESS_START:
+                        console.info('WebSocket', EWebSocketEvent.PROCESS_START, data)
+                        break
+                    case EWebSocketEvent.PROCESS_END:
+                        console.info('WebSocket', EWebSocketEvent.PROCESS_END, data)
+                        break
+                    case EWebSocketEvent.PROCESS_PENDING:
+                        console.info('WebSocket', EWebSocketEvent.PROCESS_PENDING, data)
                         break
                     default:
                         console.warn('Default case of received message:', type, data)
@@ -176,4 +217,29 @@ const writeDump = async (data: ILocalState) => {
     } catch (e) {
         console.error('writeDump', e)
     }
+}
+
+export const WebSocketDispatch = <T extends TWebSocketMessage>(
+    request: TWebSocketMessage,
+    funcCondition?: (data: T) => boolean
+): Promise<T> => {
+    return new Promise((resolve, reject) => {
+        try {
+            WebSocketConnection()?.once('message', (message: string) => {
+                const socketMessage = JSON.parse(message) as TWebSocketMessage
+                const { type } = socketMessage
+
+                if (type === request.type && !funcCondition) {
+                    resolve(socketMessage as T)
+                } else if (type === request.type && funcCondition && funcCondition(socketMessage as T)) {
+                    resolve(socketMessage as T)
+                }
+            })
+
+            WebSocketConnection()?.send(JSON.stringify(request))
+        } catch (e) {
+            console.error(e)
+            reject(null)
+        }
+    })
 }

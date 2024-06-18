@@ -17,7 +17,13 @@ import {
     sendToEKapModuleNewDictionaryRecordContent,
     sleep, updateAuthorInEkapBPDocument,
 } from '../../utils'
-import {EWebSocketEvent, WebSocketConnection, WebSocketData} from '../../websocket'
+import {
+    EWebSocketEvent,
+    type ISocketResponseMessageProcess,
+    WebSocketConnection,
+    WebSocketData,
+    WebSocketDispatch
+} from '../../websocket'
 import type {
     IAttachmentUploaded,
     IAttachmentUploadFormData,
@@ -161,6 +167,31 @@ export class SceneFour {
                         console.log('skip not found selectedId', selectedId)
                         continue
                     }
+
+                    await sleep(1000)
+
+                    const processInfo = await WebSocketDispatch<ISocketResponseMessageProcess>({
+                        type: EWebSocketEvent.PROCESS_PENDING,
+                        data: {
+                            process: {
+                                id: String(selectedId)
+                            }
+                        }
+                    })
+
+                    if(processInfo.data.process.id === selectedId && processInfo.data.process.isPending) {
+                        console.log('Skipped the process', selectedId)
+                        continue
+                    }
+
+                    await WebSocketDispatch({
+                        type: EWebSocketEvent.PROCESS_START,
+                        data: {
+                            process: {
+                                id: String(selectedId)
+                            }
+                        }
+                    })
 
                     if (SceneFour.getSuccessLoadedList().includes(selectedId)) {
                         migrationInfo.countLoaded++

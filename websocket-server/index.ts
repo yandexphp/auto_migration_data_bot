@@ -15,15 +15,41 @@ interface ILocalState {
     issues: IIssue[]
 }
 
-interface IWebSocketMessage {
-    type: EWebSocketEvent
+interface ILocalStateProcess {
+    pending: string[]
+}
+
+interface IMessageIssue {
+    type: EWebSocketEvent.ISSUE,
     data: ILocalState
 }
+
+interface IMessageProcess {
+    type: EWebSocketEvent.PROCESS_START | EWebSocketEvent.PROCESS_END | EWebSocketEvent.PROCESS_PENDING
+    data: {
+        process: {
+            id: string
+        }
+    }
+}
+
+interface IMessagePing {
+    type: EWebSocketEvent.PING | EWebSocketEvent.PONG
+    data: unknown
+}
+
+type TWebSocketMessage =
+    | IMessageIssue
+    | IMessageProcess
+    | IMessagePing;
 
 export enum EWebSocketEvent {
     PING = 'PING',
     PONG = 'PONG',
-    ISSUE ='ISSUE'
+    ISSUE ='ISSUE',
+    PROCESS_START = 'PROCESS_START',
+    PROCESS_END = 'PROCESS_END',
+    PROCESS_PENDING = 'PROCESS_PENDING',
 }
 
 const fileName = '../websocket-issues-dump.json'
@@ -39,6 +65,10 @@ let localState: ILocalState = {
     ]
 }
 
+const localStateProcess: ILocalStateProcess = {
+    pending: []
+}
+
 wss.on('connection', (ws: WebSocket) => {
     ws.send(JSON.stringify({
         type: EWebSocketEvent.ISSUE,
@@ -47,7 +77,7 @@ wss.on('connection', (ws: WebSocket) => {
 
     ws.on('message', (message: string) => {
         try {
-            const { type, data } = JSON.parse(message) as IWebSocketMessage
+            const { type, data } = JSON.parse(message) as TWebSocketMessage
 
             switch (type) {
                 case EWebSocketEvent.ISSUE:
@@ -72,6 +102,54 @@ wss.on('connection', (ws: WebSocket) => {
                 case EWebSocketEvent.PING:
                     ws.send(JSON.stringify({
                         type: EWebSocketEvent.PONG,
+                    }))
+                    break
+                case EWebSocketEvent.PROCESS_START:
+                    if(!localStateProcess.pending.includes(data.process.id)) {
+                        localStateProcess.pending.push(data.process.id)
+                        console.log('WebSocket Server', EWebSocketEvent.PROCESS_START, 'Add process', data.process.id)
+                    }
+
+                    ws.send(JSON.stringify({
+                        type: EWebSocketEvent.PROCESS_START,
+                        data: {
+                            process: {
+                                id: data.process.id
+                            }
+                        }
+                    }))
+                    break
+                case EWebSocketEvent.PROCESS_END:
+                    if(localStateProcess.pending.includes(data.process.id)) {
+                        localStateProcess.pending.splice(localStateProcess.pending.findIndex(processId => processId === data.process.id), 1)
+                        console.log('WebSocket Server', EWebSocketEvent.PROCESS_END, 'Remove process', data.process.id)
+                    }
+
+                    ws.send(JSON.stringify({
+                        type: EWebSocketEvent.PROCESS_END,
+                        data: {
+                            process: {
+                                id: data.process.id
+                            }
+                        }
+                    }))
+                    break
+                case EWebSocketEvent.PROCESS_PENDING:
+                    console.log('WebSocket Server', EWebSocketEvent.PROCESS_PENDING, 'Status process', {
+                        process: {
+                            id: data.process.id,
+                            isPending: localStateProcess.pending.includes(data.process.id)
+                        }
+                    })
+
+                    ws.send(JSON.stringify({
+                        type: EWebSocketEvent.PROCESS_PENDING,
+                        data: {
+                            process: {
+                                id: data.process.id,
+                                isPending: localStateProcess.pending.includes(data.process.id)
+                            }
+                        }
                     }))
                     break
                 default:
