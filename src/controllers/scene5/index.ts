@@ -122,7 +122,7 @@ export class SceneFive {
             const procedureMigration = async (pageIndex = 1) => {
                 console.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = `https://ekap.kazatomprom.kz/projects/kaptech_riskmanagement/issues?query_id=216&page=${pageIndex}`
+                const url = `https://ekap.kazatomprom.kz/projects/kaptech_riskmanagement/issues?query_id=6675&page=${pageIndex}`
                 await page.goto(url, {waitUntil: 'networkidle0'})
 
                 const nodeLinks = await page.$$('table.list.issues td.id a')
@@ -535,33 +535,33 @@ export class SceneFive {
 
                         let isSuccessfully = false
 
-                        // if (!FLAG_ERROR) {
-                        //     const newDoc = await sendToEKapModuleNewBPDocumentContent(body, getProcessId(), ekapConfigRequest)
-                        //     isSuccessfully = newDoc !== null
-                        //
-                        //     if(xmlContentUserProfile && newDoc !== null) {
-                        //         const xmlObjectUserProfile = xmlParser.parse(xmlContentUserProfile)
-                        //
-                        //         if (xmlObjectUserProfile) {
-                        //             const xmlDocumentUserProfile = xmlObjectUserProfile as TXmlUserProfile
-                        //
-                        //             console.log('xmlDocumentUserProfile', xmlDocumentUserProfile)
-                        //
-                        //             const { person } = xmlDocumentUserProfile.person
-                        //
-                        //             const ekapV2UserAuthorId = await searchEkapUserIdByUsername(person.login, ekapConfigRequest)
-                        //
-                        //             if(ekapV2UserAuthorId !== null) {
-                        //                 await updateAuthorInEkapBPDocument<TRequestUpdateAuthorInEkapBPDocument>({
-                        //                     processInstanceId: newDoc,
-                        //                     userId: ekapV2UserAuthorId,
-                        //                     userName: [person.lastname, person.firstname].filter(Boolean).join(' '),
-                        //                     userType: 'AUTHOR'
-                        //                 }, ekapConfigRequest)
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        if (!FLAG_ERROR) {
+                            const newDoc = await sendToEKapModuleNewBPDocumentContent(body, getProcessId(), ekapConfigRequest)
+                            isSuccessfully = newDoc !== null
+
+                            if(xmlContentUserProfile && newDoc !== null) {
+                                const xmlObjectUserProfile = xmlParser.parse(xmlContentUserProfile)
+
+                                if (xmlObjectUserProfile) {
+                                    const xmlDocumentUserProfile = xmlObjectUserProfile as TXmlUserProfile
+
+                                    console.log('xmlDocumentUserProfile', xmlDocumentUserProfile)
+
+                                    const { person } = xmlDocumentUserProfile.person
+
+                                    const ekapV2UserAuthorId = await searchEkapUserIdByUsername(person.login, ekapConfigRequest)
+
+                                    if(ekapV2UserAuthorId !== null) {
+                                        await updateAuthorInEkapBPDocument<TRequestUpdateAuthorInEkapBPDocument>({
+                                            processInstanceId: newDoc,
+                                            userId: ekapV2UserAuthorId,
+                                            userName: [person.lastname, person.firstname].filter(Boolean).join(' '),
+                                            userType: 'AUTHOR'
+                                        }, ekapConfigRequest)
+                                    }
+                                }
+                            }
+                        }
 
                         if (isSuccessfully) {
                             migrationInfo.countLoaded++
