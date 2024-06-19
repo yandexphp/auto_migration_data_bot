@@ -264,6 +264,21 @@ export const sendToEKapModuleNewBPDocument = async (body: TCreateDocumentProcces
     return response.status === 200
 }
 
+export const sendToEKapModuleNewBPDocumentContent = async (body: TCreateDocumentProccess, processId: string, ekapConfigRequest: RequestInit): Promise<string> => {
+    console.log('sendToEKapModuleNewBPDocumentContent create a new bp/process', processId)
+    const response = await fetch(`${getEkapUrlAPI()}/bpm/process/start/${processId}`, {
+        ...ekapConfigRequest,
+        method: 'POST',
+        body: JSON.stringify(body)
+    })
+
+    const result = await response.json()
+
+    console.log('sendToEKapModuleNewBPDocumentContent response', response.status, result)
+
+    return response.status === 200 ? result : null
+}
+
 export const sendToEKapModuleNewDictionaryRecord = async <T>(body: T, ekapConfigRequest: RequestInit): Promise<boolean> => {
     console.log('sendToEKapModuleNewDictionaryRecord create a new dictionary record')
     const response = await fetch(`${getEkapUrlAPI()}/dictionary-entries`, {
