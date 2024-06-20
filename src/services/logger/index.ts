@@ -1,37 +1,29 @@
-import { Page } from 'puppeteer'
+import { appendFileSync } from 'fs'
+import { format } from 'date-fns'
 
 export class Logger {
-    private page: Page
+    private static randomString: string = Logger.generateRandomString(5)
 
-    constructor(page: Page) {
-        this.page = page
-    }
-
-    public async log(...args: any[]) {
-        try {
-            await this.page.evaluate((args) => console.log(...args), args)
-        } catch (e) {
-            console.error(e)
+    private static generateRandomString(length: number): string {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+        let result = ''
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length)
+            result += characters.charAt(randomIndex)
         }
+        return result
     }
 
-    public async info(...args: any[]) {
-        await this.page.evaluate(() => console.info(...args))
-    }
+    public static log(...args: any[]): void {
+        const date = new Date()
+        const formattedDate = format(date, 'dd-MM-yyyy')
+        const logFileName = `logfile-${Logger.randomString}-${formattedDate}.log`
 
-    public async debug(...args: any[]) {
-        await this.page.evaluate(() => console.debug(...args))
-    }
+        const logMessage = args.map(arg =>
+            typeof arg === 'object' ? JSON.stringify(arg) : arg.toString()
+        ).join(' ')
 
-    public async warn(...args: any[]) {
-        await this.page.evaluate(() => console.warn(...args))
-    }
-
-    public async error(...args: any[]) {
-        await this.page.evaluate(() => console.error(...args))
-    }
-
-    public async clear() {
-        await this.page.evaluate(() => console.clear())
+        console.log(...args)
+        appendFileSync(logFileName, logMessage + '\n')
     }
 }

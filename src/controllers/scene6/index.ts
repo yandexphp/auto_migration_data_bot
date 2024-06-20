@@ -40,12 +40,12 @@ import {Logger} from '../../services/logger'
 
 const redmineAPIKey = process.env.REDMINE_API_KEY ?? ''
 
-export class SceneFive {
+export class SceneSix {
     private static page: Page
 
     constructor(page: Page) {
-        SceneFive.page = page
-        SceneFive.init()
+        SceneSix.page = page
+        SceneSix.init()
     }
 
     public static getSuccessLoadedList = () => WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
@@ -53,7 +53,7 @@ export class SceneFive {
 
     public static async init() {
         try {
-            const page = SceneFive.page
+            const page = SceneSix.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
                 ignoreAttributes: false,
@@ -92,43 +92,26 @@ export class SceneFive {
             }
 
             const ENUM_FORM_COMPONENTS = {
-                PURPOSE_OF_DOCUMENT: 'purpose_of_document',
-                PERIOD: 'Period',
-                YEAR: 'year_1',
-                ORGANIZATION: 'organization',
-                RISK_CATEGORY: 'risk_category',
-                RISK_CODE: 'risk_code',
-                MAIN_TYPE: 'main_type',
-                EFFICIENCY: 'EFFICIENCY',
-                NAME_RISK: 'name_risk',
-                DESCRIPTION: 'description',
-                TASK_DESCRIPTION: 'taskDescription',
-                KEY_RISKS: 'key_risks',
-                PROJECT_OWNER: 'project_owner',
-                START_DATE: 'start_date',
-                END_DATE: 'end_date',
-                REACTIVE_EVENTS: 'reactive_events',
-                SIZE: 'size',
-                POSSIBILITY_OF_RISK: 'possibility_of_risk',
-                MARK_OF_CURRENT_RISK: 'mark_of_current_risk',
-                AMOUNT_OF_DAMAGE: 'amount_of_damage',
-                TIME_AWAY_ONE: 'time_away_one',
-                MARK_OF_RISK: 'mark_of_risk',
-                RISK_ASSESSMENT: 'Risk_assessment',
-                IMPLEMENTATION_OF_RISK: 'implementation_of_risk',
-                RISK_RESULT: 'risk_result',
-                INFLUENCE_TIME: 'influence_time',
-                BASE: 'base',
-                TYPE_OF_EVENT: 'type_of_event',
-                EKAP1_ID: 'EKAP1_ID',
+                COMPANY_NAME: 'company_name',
+                PERIOD: 'period',
+                TENGE1: 'tenge1',
+                TENGE2: 'tenge2',
+                SIGNED_CONTRACTS: 'signed_contracts',
+                GRADE: 'grade',
+                GRADE2: 'grade2',
+                GRADE3: 'grade3',
+                QUANTITY: 'quantity',
+                GRADE4: 'grade4',
+                FILES: 'files',
+                COMMENT: 'comment',
             }
 
-            Logger.log('SceneFive initialization.')
+            Logger.log('SceneSix initialization.')
 
             const procedureMigration = async (pageIndex = 1) => {
                 Logger.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = getUrlIssueOfProjectByQueryId('kaptech_riskmanagement', '216', pageIndex)
+                const url = getUrlIssueOfProjectByQueryId('ipr', '7034', pageIndex)
                 Logger.log('F[procedureMigration] - Go to url: ' + url, pageIndex, '- starting')
 
                 await page.goto(url, {waitUntil: 'networkidle0'})
@@ -234,7 +217,7 @@ export class SceneFive {
 
                     Logger.log('--- Validation issueID is SuccessLoaded PENDING ---')
 
-                    if (SceneFive.getSuccessLoadedList().includes(selectedId)) {
+                    if (SceneSix.getSuccessLoadedList().includes(selectedId)) {
                         migrationInfo.countLoaded++
                         Logger.log(` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
 
@@ -593,105 +576,39 @@ export class SceneFive {
                                         let fieldCode = '' as string | null
 
                                         switch (key) {
-                                            case ENUM_FORM_COMPONENTS.PURPOSE_OF_DOCUMENT:
-                                                fieldCode = '322'
+                                            case ENUM_FORM_COMPONENTS.COMPANY_NAME:
+                                                fieldCode = '29'
                                                 break;
                                             case ENUM_FORM_COMPONENTS.PERIOD:
                                                 fieldCode = '319'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.YEAR:
-                                                fieldCode = '320'
+                                            case ENUM_FORM_COMPONENTS.TENGE1:
+                                                fieldCode = '3135'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.ORGANIZATION:
-                                                fieldCode = '29'
+                                            case ENUM_FORM_COMPONENTS.TENGE2:
+                                                fieldCode = '3136'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.RISK_CATEGORY:
-                                                fieldCode = '303'
+                                            case ENUM_FORM_COMPONENTS.SIGNED_CONTRACTS:
+                                                fieldCode = '3137'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.RISK_CODE:
-                                                fieldCode = '174'
+                                            case ENUM_FORM_COMPONENTS.GRADE:
+                                                fieldCode = '3138'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.MAIN_TYPE:
-                                                fieldCode = '307'
+                                            case ENUM_FORM_COMPONENTS.GRADE2:
+                                                fieldCode = '3139'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.EFFICIENCY:
-                                                fieldCode = '308'
+                                            case ENUM_FORM_COMPONENTS.GRADE3:
+                                                fieldCode = '3140'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.NAME_RISK:
-                                                fieldCode = '175'
+                                            case ENUM_FORM_COMPONENTS.QUANTITY:
+                                                fieldCode = '3141'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.DESCRIPTION:
-                                                fieldCode = '115'
+                                            case ENUM_FORM_COMPONENTS.GRADE4:
+                                                fieldCode = '3142'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.TASK_DESCRIPTION:
-                                                fieldCode = '177'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.KEY_RISKS:
-                                                fieldCode = '183'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.PROJECT_OWNER:
-                                                fieldCode = '176'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.START_DATE:
-                                            case ENUM_FORM_COMPONENTS.END_DATE:
-                                            case ENUM_FORM_COMPONENTS.EKAP1_ID:
-                                                fieldCode = null
-
-                                                switch (key) {
-                                                    case ENUM_FORM_COMPONENTS.START_DATE:
-                                                        value = xmlDocument.issue.start_date
-                                                        break;
-                                                    case ENUM_FORM_COMPONENTS.END_DATE:
-                                                        value = xmlDocument.issue.due_date
-                                                        break;
-                                                    case ENUM_FORM_COMPONENTS.EKAP1_ID:
-                                                        value = xmlDocument.issue.id
-                                                        break;
-                                                    default:
-                                                }
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.REACTIVE_EVENTS:
-                                                fieldCode = '182'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.SIZE:
-                                                fieldCode = '192'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.POSSIBILITY_OF_RISK:
-                                                fieldCode = '309'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.MARK_OF_CURRENT_RISK:
-                                                fieldCode = '310'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.AMOUNT_OF_DAMAGE:
-                                                fieldCode = '317'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.TIME_AWAY_ONE:
-                                                fieldCode = '311'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.MARK_OF_RISK:
-                                                fieldCode = '312'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.RISK_ASSESSMENT:
-                                                fieldCode = '313'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.IMPLEMENTATION_OF_RISK:
-                                                fieldCode = '314'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.RISK_RESULT:
-                                                fieldCode = '318'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.INFLUENCE_TIME:
-                                                fieldCode = '315'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.BASE:
-                                                fieldCode = '316'
-                                                break;
-                                            case ENUM_FORM_COMPONENTS.TYPE_OF_EVENT:
-                                                fieldCode = '388'
-                                                break;
-                                            // case ENUM_FORM_COMPONENTS.FILES:
-                                            //     value = uploadedAttachments.map(({ bp_id }) => bp_id) ?? []
-                                            //     break
+                                            case ENUM_FORM_COMPONENTS.FILES:
+                                                value = uploadedAttachments.map(({ bp_id }) => bp_id) ?? []
+                                                break
                                             default:
                                                 Logger.log('continue by key', key)
                                                 return
@@ -784,7 +701,7 @@ export class SceneFive {
                         if (isSuccessfully) {
                             Logger.log(`--- Migration ${selectedId} is SUCCESSFULLY ---`)
                             migrationInfo.countLoaded++
-                            await writeSuccessRecordXml(selectedId, { sceneId: 5 })
+                            await writeSuccessRecordXml(selectedId, { sceneId: 6 })
 
                             if(WebSocketData.issues.findIndex(({ issueId }) => issueId === selectedId) === -1) {
                                 WebSocketConnection()?.send(JSON.stringify({
@@ -803,7 +720,7 @@ export class SceneFive {
                         } else {
                             Logger.log(`--- Migration ${selectedId} is FAILED ---`)
                             migrationInfo.failLoaded++
-                            await writeFailRecordXml(selectedId, { sceneId: 5 })
+                            await writeFailRecordXml(selectedId, { sceneId: 6 })
 
                             if(WebSocketData.issues.findIndex(({ issueId }) => issueId === selectedId) === -1) {
                                 WebSocketConnection()?.send(JSON.stringify({
@@ -885,6 +802,6 @@ export class SceneFive {
             Logger.log(e)
         }
 
-        Logger.log('SceneFive done.')
+        Logger.log('SceneSix done.')
     }
 }

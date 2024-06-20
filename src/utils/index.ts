@@ -51,7 +51,7 @@ export const notExistFileOfCreate = async (fileName: string, defaultContent: str
     }
 }
 
-export const writeFailRecordXml = async (id: number | string, ids: (string|undefined)[] = []) => {
+export const writeFailRecordXml = async (id: number | string, rest?: any) => {
     try {
         const fileName = './data/failRecordXml.json'
 
@@ -60,9 +60,15 @@ export const writeFailRecordXml = async (id: number | string, ids: (string|undef
         const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
         const jsonData = JSON.parse(data)
 
+        let additionalData = {}
+
+        if(rest) {
+            additionalData = {...rest}
+        }
+
         jsonData.push({
             id,
-            ids: ids.filter(Boolean) ?? [],
+            ...additionalData
         })
 
         await fs.writeFile(fileName, JSON.stringify(jsonData, null, 2), 'utf-8')
@@ -71,7 +77,7 @@ export const writeFailRecordXml = async (id: number | string, ids: (string|undef
     }
 }
 
-export const writeSuccessRecordXml = async (id: number | string, ids: (string|undefined)[] = []) => {
+export const writeSuccessRecordXml = async (id: number | string, rest?: any) => {
     try {
         const fileName = './data/successRecordXml.json'
 
@@ -80,9 +86,15 @@ export const writeSuccessRecordXml = async (id: number | string, ids: (string|un
         const data = await fs.readFile(fileName, 'utf-8') ?? '[]'
         const jsonData = JSON.parse(data)
 
+        let additionalData = {}
+
+        if(rest) {
+            additionalData = {...rest}
+        }
+
         jsonData.push({
             id,
-            ids: ids.filter(Boolean) ?? [],
+            ...additionalData
         })
 
         await fs.writeFile(fileName, JSON.stringify(jsonData, null, 2), 'utf-8')

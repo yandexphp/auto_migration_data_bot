@@ -42,9 +42,7 @@ export type TXml = {
         created_on: string
         updated_on: string
         closed_on: string
-        attachments: {
-            '@_type': string
-        }
+        attachments: Attachments
     }
 }
 

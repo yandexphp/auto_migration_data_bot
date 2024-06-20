@@ -225,17 +225,24 @@ export const WebSocketDispatch = <T extends TWebSocketMessage>(
 ): Promise<T> => {
     return new Promise((resolve, reject) => {
         try {
-            WebSocketConnection()?.once('message', (message: string) => {
+            const onMessageDispatch = (message: string) => {
                 const socketMessage = JSON.parse(message) as TWebSocketMessage
                 const { type } = socketMessage
 
                 if (type === request.type && !funcCondition) {
-                    resolve(socketMessage as T)
+                    resolve((() => {
+                        WebSocketConnection()?.off('message', onMessageDispatch)
+                        return socketMessage as T
+                    })())
                 } else if (type === request.type && funcCondition && funcCondition(socketMessage as T)) {
-                    resolve(socketMessage as T)
+                    resolve((() => {
+                        WebSocketConnection()?.off('message', onMessageDispatch)
+                        return socketMessage as T
+                    })())
                 }
-            })
+            }
 
+            WebSocketConnection()?.on('message', onMessageDispatch)
             WebSocketConnection()?.send(JSON.stringify(request))
         } catch (e) {
             console.error(e)
