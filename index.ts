@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer'
 
 import {getAuthPass, getAuthUsername, getUrlLoginPage} from './src/utils'
-import {SceneFive} from './src/controllers/scene5'
+import {SceneNine} from './src/controllers/scene9'
 import {WebSocketClose, WebSocketConnection} from './src/websocket'
 
 WebSocketConnection()
@@ -48,7 +48,7 @@ try {
             if (url.endsWith('/login') && method === 'POST') {
                 if (status === 302) {
                     console.info('Authorization Successfully!')
-                    new SceneFive(page)
+                    new SceneNine(page)
                 } else {
                     console.warn('Authorization failed, please check your login or password')
                     throw new Error('Failed to login')
@@ -63,7 +63,7 @@ try {
             await page.type('input[id="username"]', getAuthUsername())
             await page.type('input[id="password"]', getAuthPass())
         } catch {
-            return new SceneFive(page)
+            return new SceneNine(page)
         }
 
         await Promise.all([

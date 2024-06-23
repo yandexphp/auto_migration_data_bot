@@ -3,6 +3,7 @@ import {XMLParser} from 'fast-xml-parser'
 import {v4} from 'uuid'
 
 import {
+    dateToISOString,
     getAuthEkapPass,
     getAuthEkapUsername,
     getColorHexOrDefColor,
@@ -11,12 +12,12 @@ import {
     getFieldByXml, getOneFieldXML,
     getProcessId,
     getUrlIssueAttachmentXML, getUrlIssueOfProjectByQueryId,
-    getUrlUserProfileAttachmentXML,
+    getUrlUserProfileAttachmentXML, parseDate,
     putValueFromDictionaryOrFieldValue,
     putValueFromOptionsOrFieldValue,
     searchEkapUserIdByUsername,
     sendToEKapModuleNewBPDocumentContent,
-    sleep,
+    sleep, sortSectionAndInputsByOrders,
     updateAuthorInEkapBPDocument,
     writeFailRecordXml,
     writeSuccessRecordXml,
@@ -40,12 +41,12 @@ import {Logger} from '../../services/logger'
 
 const redmineAPIKey = process.env.REDMINE_API_KEY ?? ''
 
-export class SceneSix {
+export class SceneNine {
     private static page: Page
 
     constructor(page: Page) {
-        SceneSix.page = page
-        SceneSix.init()
+        SceneNine.page = page
+        SceneNine.init()
     }
 
     public static getSuccessLoadedList = () => WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
@@ -54,7 +55,7 @@ export class SceneSix {
     public static async init() {
         try {
             const arrOfContinueIssueIds: string[][] = []
-            const page = SceneSix.page
+            const page = SceneNine.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
                 ignoreAttributes: false,
@@ -93,26 +94,42 @@ export class SceneSix {
             }
 
             const ENUM_FORM_COMPONENTS = {
-                COMPANY_NAME: 'company_name',
+                COMPANY: 'company',
                 PERIOD: 'period',
-                TENGE1: 'tenge1',
-                TENGE2: 'tenge2',
-                SIGNED_CONTRACTS: 'signed_contracts',
-                GRADE: 'grade',
-                GRADE2: 'grade2',
-                GRADE3: 'grade3',
-                QUANTITY: 'quantity',
-                GRADE4: 'grade4',
-                FILES: 'files',
-                COMMENT: 'comment',
+                APPOINTED: 'appointed',
+                START_DATE: 'start_date',
+                END_DATE: 'end_date',
+                FULL_NAME: 'full_name',
+                IIN: 'iin',
+                LABOR_RELATIONS: 'labor_relations',
+                PERSONNEL_CATEGORY: 'personnel_category',
+                MANAGMENT_LEVEL: 'managment_level',
+                GENDER: 'gender',
+                DAY_OF_BURTH: 'day_of_burth',
+                COUNTRY: 'country',
+                PROVINCE_REGION2: 'province_region2',
+                AREA: 'area',
+                CITY_TOWN: 'city_town',
+                TRAINING_FORMAT: 'training_format',
+                VUZ: 'vuz',
+                PROGRAM_NAME: 'program_name',
+                SPECIALITY: 'speciality',
+                NUMBER_OF_HOURS: 'number_of_hours',
+                UNIVERSITY2: 'university2',
+                MONEY1: 'money1',
+                MONEY2: 'money2',
+                MONEY3: 'money3',
+                MONEY4: 'money4',
+                MONEY5: 'money5',
+                FILES: 'files_money',
             }
 
-            Logger.log('SceneSix initialization.')
+            Logger.log('SceneNine initialization.')
 
             const procedureMigration = async (pageIndex = 1) => {
                 Logger.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = getUrlIssueOfProjectByQueryId('ipr', '7034', pageIndex)
+                const url = getUrlIssueOfProjectByQueryId('ipr', '7038', pageIndex)
                 Logger.log('F[procedureMigration] - Go to url: ' + url, pageIndex, '- starting')
 
                 await page.goto(url, {waitUntil: 'networkidle0'})
@@ -148,7 +165,7 @@ export class SceneSix {
                     return
                 }
 
-                const ids = issueIds
+                const ids = [issueIds[0]]
 
                 await page.evaluate((migrationInfo) => {
                     const div = document.createElement('div')
@@ -220,7 +237,7 @@ export class SceneSix {
 
                     Logger.log('--- Validation issueID is SuccessLoaded PENDING ---')
 
-                    if (SceneSix.getSuccessLoadedList().includes(selectedId)) {
+                    if (SceneNine.getSuccessLoadedList().includes(selectedId)) {
                         migrationInfo.countLoaded++
                         Logger.log(` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
 
@@ -318,6 +335,9 @@ export class SceneSix {
                         Logger.log('xmlDocument', xmlDocument)
 
                         const authorIssueId = xmlDocument.issue.author["@_id"]
+                        const assignedUserIdEkapV1 = xmlDocument.issue?.assigned_to?.["@_id"] ?? null
+
+                        let xmlDocumentUserAssignedProfile = null
 
                         Logger.log('--- EKAP-1 Download XML Content for UserProfile PENDING ---')
 
@@ -353,6 +373,51 @@ export class SceneSix {
                         }, getUrlUserProfileAttachmentXML(authorIssueId), redmineAPIKey)
 
                         Logger.log('--- EKAP-1 Download XML Content for UserProfile SUCCESSFULLY ---')
+
+                        if(assignedUserIdEkapV1 !== null) {
+                            Logger.log('--- EKAP-1 Download XML Content for UserAssigned PENDING ---')
+
+                            const xmlContentUserAssignedProfile = await page.evaluate(async (xmlUrl, redmineAPIKey) => {
+                                try {
+                                    const response = await fetch(xmlUrl, {
+                                        "headers": {
+                                            "accept": "*/*",
+                                            "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6",
+                                            "contenttype": "application/json",
+                                            "datatype": "json",
+                                            "sec-ch-ua": "\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\"",
+                                            "sec-ch-ua-mobile": "?0",
+                                            "sec-ch-ua-platform": "\"macOS\"",
+                                            "sec-fetch-dest": "empty",
+                                            "sec-fetch-mode": "cors",
+                                            "sec-fetch-site": "same-origin",
+                                            "x-redmine-api-key": redmineAPIKey
+                                        },
+                                        "referrerPolicy": "strict-origin-when-cross-origin",
+                                        "body": null,
+                                        "method": "GET",
+                                        "mode": "cors",
+                                        "credentials": "omit"
+                                    })
+
+                                    return await response.text()
+                                } catch (err) {
+                                    console.error(err)
+                                }
+
+                                return null
+                            }, getUrlUserProfileAttachmentXML(assignedUserIdEkapV1), redmineAPIKey)
+
+                            if(xmlContentUserAssignedProfile) {
+                                const xmlObjectUserAssignedProfile = xmlParser.parse(xmlContentUserAssignedProfile)
+
+                                if (xmlObjectUserAssignedProfile) {
+                                    xmlDocumentUserAssignedProfile = xmlObjectUserAssignedProfile as TXmlUserProfile
+                                }
+                            }
+
+                            Logger.log('--- EKAP-1 Download XML Content for UserAssigned SUCCESSFULLY ---')
+                        }
 
                         Logger.log('--- Create body for ekap/forms/bp ---')
 
@@ -582,39 +647,104 @@ export class SceneSix {
                                         let fieldCode = '' as string | null
 
                                         switch (key) {
-                                            case ENUM_FORM_COMPONENTS.COMPANY_NAME:
+                                            case ENUM_FORM_COMPONENTS.COMPANY:
                                                 fieldCode = '29'
                                                 break;
                                             case ENUM_FORM_COMPONENTS.PERIOD:
                                                 fieldCode = '319'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.TENGE1:
-                                                fieldCode = '3135'
+                                            case ENUM_FORM_COMPONENTS.START_DATE:
+                                                fieldCode = '3484'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.TENGE2:
-                                                fieldCode = '3136'
+                                            case ENUM_FORM_COMPONENTS.END_DATE:
+                                                fieldCode = '3479'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.SIGNED_CONTRACTS:
-                                                fieldCode = '3137'
+                                            case ENUM_FORM_COMPONENTS.FULL_NAME:
+                                                fieldCode = '1483'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE:
-                                                fieldCode = '3138'
+                                            case ENUM_FORM_COMPONENTS.IIN:
+                                                fieldCode = '3518'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE2:
-                                                fieldCode = '3139'
+                                            case ENUM_FORM_COMPONENTS.LABOR_RELATIONS:
+                                                fieldCode = '1441'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE3:
-                                                fieldCode = '3140'
+                                            case ENUM_FORM_COMPONENTS.PERSONNEL_CATEGORY:
+                                                fieldCode = '3449'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.QUANTITY:
-                                                fieldCode = '3141'
+                                            case ENUM_FORM_COMPONENTS.MANAGMENT_LEVEL:
+                                                fieldCode = '860'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE4:
-                                                fieldCode = '3142'
+                                            case ENUM_FORM_COMPONENTS.GENDER:
+                                                fieldCode = '887'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.DAY_OF_BURTH:
+                                                fieldCode = '195'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.COUNTRY:
+                                                fieldCode = '3456'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.PROVINCE_REGION2:
+                                                fieldCode = '3456'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.AREA:
+                                                fieldCode = '3626'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.CITY_TOWN:
+                                                fieldCode = '3627'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.TRAINING_FORMAT:
+                                                fieldCode = '862'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.VUZ:
+                                                fieldCode = '1554'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.PROGRAM_NAME:
+                                                fieldCode = '1437'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.SPECIALITY:
+                                                fieldCode = '3447'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.NUMBER_OF_HOURS:
+                                                fieldCode = '1453'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.UNIVERSITY2:
+                                                fieldCode = '3515'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.MONEY1:
+                                                fieldCode = '888'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.MONEY2:
+                                                fieldCode = '889'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.MONEY3:
+                                                fieldCode = '865'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.MONEY4:
+                                                fieldCode = '3605'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.MONEY5:
+                                                fieldCode = '3606'
                                                 break;
                                             case ENUM_FORM_COMPONENTS.FILES:
                                                 value = uploadedAttachments.map(({ bp_id }) => bp_id) ?? []
                                                 break
+                                            case ENUM_FORM_COMPONENTS.APPOINTED:
+                                                fieldCode = null
+
+                                                switch (key) {
+                                                    case ENUM_FORM_COMPONENTS.APPOINTED:
+                                                        if(xmlDocumentUserAssignedProfile) {
+                                                            const { person: { person } } = xmlDocumentUserAssignedProfile
+                                                            const ekapV2UserAssignedId = await searchEkapUserIdByUsername(person.login, ekapConfigRequest)
+
+                                                            if(ekapV2UserAssignedId) {
+                                                                value = ekapV2UserAssignedId
+                                                            }
+                                                        }
+                                                        break;
+                                                    default:
+                                                }
+                                                break;
                                             default:
                                                 Logger.log('continue by key', key)
                                                 arrOfContinueIssueIds.push(['continue by key ' + key, selectedId])
@@ -632,9 +762,11 @@ export class SceneSix {
                                         }
 
                                         if (accessType === 'REQUIRED' && !value) value = ' '
-                                        // if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        // if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
+                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = dateToISOString(parseDate(value) ?? value)
+                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = dateToISOString(parseDate(value) ?? value)
+                                        if (['DICTIONARY', 'RADIO', 'SELECT'].includes(type) && !Array.isArray(value)) value = [value]
+
+                                        Logger.log('Key', key, 'Value', value)
 
                                         return {id, value}
                                     } catch (e) {
@@ -671,11 +803,19 @@ export class SceneSix {
                         let isSuccessfully = false
 
                         if (!FLAG_ERROR) {
+                            Logger.log('SORTED body.formDataDto.sections', body.formDataDto.sections)
+                            body.formDataDto.sections = sortSectionAndInputsByOrders(formProcessDetail, body)
+
                             Logger.log('--- await sendToEKapModuleNewBPDocumentContent PENDING ---')
+
                             const newDoc = await sendToEKapModuleNewBPDocumentContent(body, getProcessId(), ekapConfigRequest)
+
                             Logger.log('--- await sendToEKapModuleNewBPDocumentContent SUCCESSFULLY ---')
+
                             isSuccessfully = newDoc !== null
 
+                            Logger.log('--- New Document BP ---', newDoc)
+                            
                             if(xmlContentUserProfile && newDoc !== null) {
                                 Logger.log('--- await Features of Author put from Ekap-1 to Ekap-v2 PENDING ---')
                                 const xmlObjectUserProfile = xmlParser.parse(xmlContentUserProfile)
@@ -774,7 +914,7 @@ export class SceneSix {
                 if (isNextPage) {
                     const newPageIndex = pageIndex + 1
                     Logger.log(`--- await Migration go to next page ${newPageIndex} ---`)
-                    await procedureMigration(newPageIndex)
+                    // await procedureMigration(newPageIndex)
                 }
 
                 Logger.log('Procedure migration by page', pageIndex, `${isNextPage ? `We are redirecting you to the next page ${pageIndex + 1} to continue.` : ''}`, '- the iteration process is finished')
@@ -810,6 +950,6 @@ export class SceneSix {
             Logger.log(e)
         }
 
-        Logger.log('SceneSix done.')
+        Logger.log('SceneNine done.')
     }
 }

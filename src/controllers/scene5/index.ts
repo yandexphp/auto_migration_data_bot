@@ -53,6 +53,7 @@ export class SceneFive {
 
     public static async init() {
         try {
+            const arrOfContinueIssueIds: string[][] = []
             const page = SceneFive.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
@@ -128,7 +129,7 @@ export class SceneFive {
             const procedureMigration = async (pageIndex = 1) => {
                 Logger.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = getUrlIssueOfProjectByQueryId('kaptech_riskmanagement', '216', pageIndex)
+                const url = getUrlIssueOfProjectByQueryId('kaptech_riskmanagement', '6675', pageIndex)
                 Logger.log('F[procedureMigration] - Go to url: ' + url, pageIndex, '- starting')
 
                 await page.goto(url, {waitUntil: 'networkidle0'})
@@ -194,6 +195,7 @@ export class SceneFive {
                 for (const selectedId of ids) {
                     if (!selectedId) {
                         Logger.log('skip not found selectedId', selectedId)
+                        arrOfContinueIssueIds.push(['skip not found selectedId', String(selectedId)])
                         continue
                     }
 
@@ -216,6 +218,7 @@ export class SceneFive {
 
                     if(processInfo.data.process.id === selectedId && processInfo.data.process.isPending) {
                         Logger.log('Skipped the process', selectedId)
+                        arrOfContinueIssueIds.push(['Skipped the process', selectedId])
                         continue
                     }
 
@@ -257,6 +260,8 @@ export class SceneFive {
                                 }
                             }
                         }, selectedId, migrationInfo)
+
+                        arrOfContinueIssueIds.push([` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`, selectedId])
                         continue
                     }
 
@@ -321,6 +326,7 @@ export class SceneFive {
 
                         if (!xmlObject) {
                             Logger.log('--- EKAP-1 XML Content IS EMPTY ---')
+                            arrOfContinueIssueIds.push(['--- EKAP-1 XML Content IS EMPTY ---', selectedId])
                             continue
                         }
 
@@ -694,6 +700,7 @@ export class SceneFive {
                                             //     break
                                             default:
                                                 Logger.log('continue by key', key)
+                                                arrOfContinueIssueIds.push(['continue by key ' + key, selectedId])
                                                 return
                                         }
 
@@ -881,6 +888,7 @@ export class SceneFive {
             }, migrationInfo)
 
             Logger.log(' - finished successfully as', migrationInfo)
+            Logger.log('Array issue ids is failed load', arrOfContinueIssueIds)
         } catch (e) {
             Logger.log(e)
         }

@@ -3,6 +3,7 @@ import {XMLParser} from 'fast-xml-parser'
 import {v4} from 'uuid'
 
 import {
+    dateToISOString,
     getAuthEkapPass,
     getAuthEkapUsername,
     getColorHexOrDefColor,
@@ -11,12 +12,12 @@ import {
     getFieldByXml, getOneFieldXML,
     getProcessId,
     getUrlIssueAttachmentXML, getUrlIssueOfProjectByQueryId,
-    getUrlUserProfileAttachmentXML,
+    getUrlUserProfileAttachmentXML, parseDate,
     putValueFromDictionaryOrFieldValue,
     putValueFromOptionsOrFieldValue,
     searchEkapUserIdByUsername,
     sendToEKapModuleNewBPDocumentContent,
-    sleep,
+    sleep, sortSectionAndInputsByOrders,
     updateAuthorInEkapBPDocument,
     writeFailRecordXml,
     writeSuccessRecordXml,
@@ -40,12 +41,12 @@ import {Logger} from '../../services/logger'
 
 const redmineAPIKey = process.env.REDMINE_API_KEY ?? ''
 
-export class SceneSix {
+export class SceneSeven {
     private static page: Page
 
     constructor(page: Page) {
-        SceneSix.page = page
-        SceneSix.init()
+        SceneSeven.page = page
+        SceneSeven.init()
     }
 
     public static getSuccessLoadedList = () => WebSocketData.issues.filter(({ isMigrated }) => isMigrated).map(({ issueId }) => issueId)
@@ -54,7 +55,7 @@ export class SceneSix {
     public static async init() {
         try {
             const arrOfContinueIssueIds: string[][] = []
-            const page = SceneSix.page
+            const page = SceneSeven.page
             const ekapUrl = getEkapUrlPage()
             const xmlParser = new XMLParser({
                 ignoreAttributes: false,
@@ -93,26 +94,29 @@ export class SceneSix {
             }
 
             const ENUM_FORM_COMPONENTS = {
-                COMPANY_NAME: 'company_name',
+                COMPANY: 'company',
                 PERIOD: 'period',
-                TENGE1: 'tenge1',
-                TENGE2: 'tenge2',
-                SIGNED_CONTRACTS: 'signed_contracts',
-                GRADE: 'grade',
-                GRADE2: 'grade2',
-                GRADE3: 'grade3',
-                QUANTITY: 'quantity',
-                GRADE4: 'grade4',
-                FILES: 'files',
-                COMMENT: 'comment',
+                TYPE_OF_TRAINING: 'type_of_training',
+                FULL_NAME: 'full_name',
+                IIN: 'iin',
+                DATA_START: 'data_start',
+                DATA_END: 'data_end',
+                COUNTRY: 'country',
+                PROVINCE_REGION2: 'province_region2',
+                AREA: 'area',
+                CITY_TOWN: 'city_town',
+                TRAINING_FORMAT: 'training_format',
+                PLATFORM_LOCATION: 'platform_location',
+                EMPLOYEE7: 'employee7',
+                FILES: 'files'
             }
 
-            Logger.log('SceneSix initialization.')
+            Logger.log('SceneSeven initialization.')
 
             const procedureMigration = async (pageIndex = 1) => {
                 Logger.log('F[procedureMigration] - Procedure migration by page', pageIndex, '- starting')
 
-                const url = getUrlIssueOfProjectByQueryId('ipr', '7034', pageIndex)
+                const url = getUrlIssueOfProjectByQueryId('ipr', '7036', pageIndex)
                 Logger.log('F[procedureMigration] - Go to url: ' + url, pageIndex, '- starting')
 
                 await page.goto(url, {waitUntil: 'networkidle0'})
@@ -220,7 +224,7 @@ export class SceneSix {
 
                     Logger.log('--- Validation issueID is SuccessLoaded PENDING ---')
 
-                    if (SceneSix.getSuccessLoadedList().includes(selectedId)) {
+                    if (SceneSeven.getSuccessLoadedList().includes(selectedId)) {
                         migrationInfo.countLoaded++
                         Logger.log(` - Issue ${selectedId} was is loaded as Success [OK]; Left ${migrationInfo.countLoaded} of ${migrationInfo.allCountItems} entries.`)
 
@@ -582,35 +586,47 @@ export class SceneSix {
                                         let fieldCode = '' as string | null
 
                                         switch (key) {
-                                            case ENUM_FORM_COMPONENTS.COMPANY_NAME:
+                                            case ENUM_FORM_COMPONENTS.COMPANY:
                                                 fieldCode = '29'
                                                 break;
                                             case ENUM_FORM_COMPONENTS.PERIOD:
                                                 fieldCode = '319'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.TENGE1:
-                                                fieldCode = '3135'
+                                            case ENUM_FORM_COMPONENTS.TYPE_OF_TRAINING:
+                                                fieldCode = '3478'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.TENGE2:
-                                                fieldCode = '3136'
+                                            case ENUM_FORM_COMPONENTS.FULL_NAME:
+                                                fieldCode = '3486'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.SIGNED_CONTRACTS:
-                                                fieldCode = '3137'
+                                            case ENUM_FORM_COMPONENTS.IIN:
+                                                fieldCode = '3518'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE:
-                                                fieldCode = '3138'
+                                            case ENUM_FORM_COMPONENTS.DATA_START:
+                                                fieldCode = '3484'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE2:
-                                                fieldCode = '3139'
+                                            case ENUM_FORM_COMPONENTS.DATA_END:
+                                                fieldCode = '3479'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE3:
-                                                fieldCode = '3140'
+                                            case ENUM_FORM_COMPONENTS.COUNTRY:
+                                                fieldCode = '3456'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.QUANTITY:
-                                                fieldCode = '3141'
+                                            case ENUM_FORM_COMPONENTS.PROVINCE_REGION2:
+                                                fieldCode = '1479'
                                                 break;
-                                            case ENUM_FORM_COMPONENTS.GRADE4:
-                                                fieldCode = '3142'
+                                            case ENUM_FORM_COMPONENTS.AREA:
+                                                fieldCode = '3626'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.CITY_TOWN:
+                                                fieldCode = '3627'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.TRAINING_FORMAT:
+                                                fieldCode = '862'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.PLATFORM_LOCATION:
+                                                fieldCode = '3480'
+                                                break;
+                                            case ENUM_FORM_COMPONENTS.EMPLOYEE7:
+                                                fieldCode = '1546'
                                                 break;
                                             case ENUM_FORM_COMPONENTS.FILES:
                                                 value = uploadedAttachments.map(({ bp_id }) => bp_id) ?? []
@@ -632,9 +648,11 @@ export class SceneSix {
                                         }
 
                                         if (accessType === 'REQUIRED' && !value) value = ' '
-                                        // if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        // if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        if (['DICTIONARY', 'RADIO'].includes(type) && !Array.isArray(value)) value = [value]
+                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.DATA_START) value = dateToISOString(parseDate(value) ?? value)
+                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.DATA_END) value = dateToISOString(parseDate(value) ?? value)
+                                        if (['DICTIONARY', 'RADIO', 'SELECT'].includes(type) && !Array.isArray(value)) value = [value]
+
+                                        Logger.log('Key', key, 'Value', value)
 
                                         return {id, value}
                                     } catch (e) {
@@ -671,11 +689,19 @@ export class SceneSix {
                         let isSuccessfully = false
 
                         if (!FLAG_ERROR) {
+                            Logger.log('SORTED body.formDataDto.sections', body.formDataDto.sections)
+                            body.formDataDto.sections = sortSectionAndInputsByOrders(formProcessDetail, body)
+
                             Logger.log('--- await sendToEKapModuleNewBPDocumentContent PENDING ---')
+
                             const newDoc = await sendToEKapModuleNewBPDocumentContent(body, getProcessId(), ekapConfigRequest)
+
                             Logger.log('--- await sendToEKapModuleNewBPDocumentContent SUCCESSFULLY ---')
+
                             isSuccessfully = newDoc !== null
 
+                            Logger.log('--- New Document BP ---', newDoc)
+                            
                             if(xmlContentUserProfile && newDoc !== null) {
                                 Logger.log('--- await Features of Author put from Ekap-1 to Ekap-v2 PENDING ---')
                                 const xmlObjectUserProfile = xmlParser.parse(xmlContentUserProfile)
@@ -810,6 +836,6 @@ export class SceneSix {
             Logger.log(e)
         }
 
-        Logger.log('SceneSix done.')
+        Logger.log('SceneSeven done.')
     }
 }

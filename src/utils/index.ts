@@ -2,7 +2,7 @@ import {promises as fs} from 'fs'
 import moment from 'moment'
 
 import type {
-    TCreateDocumentProccess,
+    TCreateDocumentProccess, TFormProcessCustomDetail,
     TFormProcessSectionPropInputOptionsItem,
     TResponseSendToEKapModuleNewDictionaryRecordContent,
     TResponseUpdateAuthorInEkapBPDocument,
@@ -205,7 +205,7 @@ export const putValueFromOptionsOrFieldValue = (value: string | null, options: T
         return value ?? ''
     }
 
-    return options.find(x => x.label === value)?.value ?? value ?? ''
+    return options.find(x => x.label?.toLowerCase() === value?.toLowerCase())?.value ?? value ?? ''
 }
 
 export const getOneFieldXML = <T, K extends keyof T>(obj: T, key: K): T[K] => obj[key]
@@ -384,4 +384,43 @@ export const updateAuthorInEkapBPDocument = async <T>(body: T, ekapConfigRequest
     }
 
     return null
+}
+
+export const sortSectionAndInputsByOrders = (formDetails: TFormProcessCustomDetail, body: TCreateDocumentProccess) => {
+    const sortedBody = body.formDataDto.sections.map(section => {
+        const formSection = formDetails.sections.find(s => s.id === section.id)
+
+        if(!formSection) {
+            return section
+        }
+
+        const sortedInputs = [...section.inputs].sort((a, b) => {
+            const inputA = formSection.inputs.find(input => input.id === a.id)
+            const inputB = formSection.inputs.find(input => input.id === b.id)
+
+            if(inputA != undefined && inputB != undefined) {
+                return inputA.order - inputB.order
+            }
+
+            return 0
+        })
+
+        return {
+            ...section,
+            inputs: sortedInputs
+        }
+    })
+
+    sortedBody.sort((a, b) => {
+        const sectionA = formDetails.sections.find(section => section.id === a.id)
+        const sectionB = formDetails.sections.find(section => section.id === b.id)
+
+        if(sectionA != undefined && sectionB != undefined) {
+            return sectionA.order - sectionB.order
+        }
+
+        return 0
+    })
+
+    return sortedBody
 }

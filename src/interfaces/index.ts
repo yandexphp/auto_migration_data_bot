@@ -27,6 +27,10 @@ export type TXml = {
             '@_id': string
             '@_name': string
         }
+        assigned_to?: {
+            '@_id': string
+            '@_name': string
+        }
         subject: string
         description: string
         start_date: string
