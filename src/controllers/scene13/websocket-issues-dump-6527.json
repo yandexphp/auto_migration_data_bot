@@ -1,0 +1,144 @@
+{
+  "issues": [
+    {
+      "id": "5a7002f4-393c-4671-9fdb-8578d052c36b",
+      "issueId": "573115",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "3159c533-8dfb-46ab-95f4-fe8e946a0c76",
+      "issueId": "546047",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "71209fa6-b619-4f73-b436-d7084eb5c8bd",
+      "issueId": "482526",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "9c03a3cd-98df-41c0-997a-3020dee5af73",
+      "issueId": "546110",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "592050f4-0fb2-4efa-9e74-652bced91f63",
+      "issueId": "546109",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "7859c630-b30c-4d8a-87af-34397ab0aa35",
+      "issueId": "546108",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "1345bb8a-44ec-460e-973e-c184cf738076",
+      "issueId": "559239",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "136677d2-013a-4e8d-ac67-adfce6138fd5",
+      "issueId": "559235",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "98c231a7-ab37-49a4-a80b-48a207465fc0",
+      "issueId": "559387",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "5a93159c-ed1b-44a4-bd12-4e3873fb0264",
+      "issueId": "532000",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "96364f58-5a8e-47e8-99ea-7fbe5b99f753",
+      "issueId": "559418",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "e3a52a15-7229-4412-bd15-cf7f8e9959bc",
+      "issueId": "545924",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "1e3e91fb-7579-4af9-88e5-52847b35b16c",
+      "issueId": "572389",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "233083f6-1735-44a2-9ea0-71119ca40118",
+      "issueId": "568595",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "6806ed22-df16-4ce0-9389-1e0a39d61f33",
+      "issueId": "559236",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "cd4a86a9-5bf8-4cb6-a159-867ca927e2ba",
+      "issueId": "495610",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "128c3946-6d47-4a1f-bb76-f3192a6c4241",
+      "issueId": "546671",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "e3ce91a4-401f-4b87-a22d-dbeadb9fe302",
+      "issueId": "572153",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "5d798c99-7a2c-4caf-b0dd-6fd9b67db999",
+      "issueId": "559370",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    },
+    {
+      "id": "727b9e05-eae1-4ce6-9dba-9e42480fca7d",
+      "issueId": "530969",
+      "isError": false,
+      "isMigrated": true,
+      "isSavedOnDisk": true
+    }
+  ]
+}

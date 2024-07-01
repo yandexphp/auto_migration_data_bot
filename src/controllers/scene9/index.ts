@@ -165,7 +165,7 @@ export class SceneNine {
                     return
                 }
 
-                const ids = [issueIds[0]]
+                const ids = issueIds
 
                 await page.evaluate((migrationInfo) => {
                     const div = document.createElement('div')
@@ -762,9 +762,9 @@ export class SceneNine {
                                         }
 
                                         if (accessType === 'REQUIRED' && !value) value = ' '
-                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.START_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        if (!Array.isArray(value) && key === ENUM_FORM_COMPONENTS.END_DATE) value = dateToISOString(parseDate(value) ?? value)
-                                        if (['DICTIONARY', 'RADIO', 'SELECT'].includes(type) && !Array.isArray(value)) value = [value]
+                                        if (!Array.isArray(value) && type === 'DATE') value = dateToISOString(parseDate(value) ?? value)
+                                        if (!Array.isArray(value) && type === 'DATE') value = dateToISOString(parseDate(value) ?? value)
+                                        if (['DICTIONARY', 'RADIO', 'SELECT', 'USERS'].includes(type) && !Array.isArray(value)) value = [value]
 
                                         Logger.log('Key', key, 'Value', value)
 
@@ -798,13 +798,14 @@ export class SceneNine {
                         }
 
                         Logger.log('FLAG_ERROR for body', FLAG_ERROR)
+                        Logger.log('FormProcessDetails', formProcessDetail)
                         Logger.log('body.formDataDto.sections', body.formDataDto.sections)
 
                         let isSuccessfully = false
 
                         if (!FLAG_ERROR) {
-                            Logger.log('SORTED body.formDataDto.sections', body.formDataDto.sections)
                             body.formDataDto.sections = sortSectionAndInputsByOrders(formProcessDetail, body)
+                            Logger.log('SORTED body.formDataDto.sections', body.formDataDto.sections)
 
                             Logger.log('--- await sendToEKapModuleNewBPDocumentContent PENDING ---')
 
@@ -914,7 +915,7 @@ export class SceneNine {
                 if (isNextPage) {
                     const newPageIndex = pageIndex + 1
                     Logger.log(`--- await Migration go to next page ${newPageIndex} ---`)
-                    // await procedureMigration(newPageIndex)
+                    await procedureMigration(newPageIndex)
                 }
 
                 Logger.log('Procedure migration by page', pageIndex, `${isNextPage ? `We are redirecting you to the next page ${pageIndex + 1} to continue.` : ''}`, '- the iteration process is finished')

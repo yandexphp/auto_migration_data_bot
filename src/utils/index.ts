@@ -2,7 +2,8 @@ import {promises as fs} from 'fs'
 import moment from 'moment'
 
 import type {
-    TCreateDocumentProccess, TFormProcessCustomDetail,
+    TCreateDocumentProccess,
+    TFormProcessCustomDetail,
     TFormProcessSectionPropInputOptionsItem,
     TResponseSendToEKapModuleNewDictionaryRecordContent,
     TResponseUpdateAuthorInEkapBPDocument,
@@ -17,7 +18,7 @@ export const getUrlIssue = (id: number): string => `${PROTOCOL}://${process.env.
 
 export const getEkapUrlAPI = (): string => `${PROTOCOL}://${process.env.EKAP_API_HOSTNAME}` ?? ''
 
-export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, pageIndex = 1): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?page=${pageIndex}&query_id=${queryId}`
+export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, pageIndex = 1, perPage?: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?page=${pageIndex}&query_id=${queryId}${perPage ? `&per_page=${perPage}` : ''}`
 
 export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/issues/${id}.xml?include=attachments`
 
@@ -158,7 +159,7 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
         let data = [...dataSave]
         let foundIdx = -1
 
-        if(fieldCode && ['683', '29'].includes(fieldCode)) {
+        if(fieldCode && ['683', '29', '538', '539', '3648'].includes(fieldCode)) {
             data = data.map(x => {
                 return x
                     .replaceAll('«', '')
@@ -174,7 +175,7 @@ export const putValueFromDictionaryOrFieldValue = async (value: string | null, f
                 .toUpperCase()
 
             foundIdx = data.findIndex((v) => v === value)
-        } else if(fieldCode && fieldCode === '319') {
+        } else if(fieldCode && ['319', '320'].includes(fieldCode)) {
             const [curYear, curQuarter] = extractNumbers(String(value))
 
             foundIdx = data
@@ -424,3 +425,5 @@ export const sortSectionAndInputsByOrders = (formDetails: TFormProcessCustomDeta
 
     return sortedBody
 }
+
+export const readFile = (fileName: string) => fs.readFile(fileName, 'utf-8')

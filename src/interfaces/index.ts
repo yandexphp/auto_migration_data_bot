@@ -1,5 +1,3 @@
-import {sendToEKapModuleNewDictionaryRecordContent, updateAuthorInEkapBPDocument} from "../utils";
-
 export type TXml = {
     '?xml': {
         '@_version': string
@@ -349,4 +347,16 @@ export interface TBodySectionDictionaryRecordContent {
 export interface TBodyInputEntryDictionaryRecordContent {
     inputId: string
     value: string | string[]
+}
+
+export interface ILocalState {
+    issues: IIssue[]
+}
+
+export interface IIssue {
+    id: string
+    issueId: string
+    isError: boolean
+    isMigrated: boolean
+    isSavedOnDisk: boolean
 }

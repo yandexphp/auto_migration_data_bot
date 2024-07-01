@@ -103,7 +103,6 @@ const startPing = () => {
     if (ws && ws.readyState === WebSocket.OPEN) {
         const ping = () => {
             if (ws && ws.readyState === WebSocket.OPEN) {
-                console.log('WebSocketData', WebSocketData)
                 console.info('WebSocket', EWebSocketEvent.PING)
                 ws.send(JSON.stringify({
                     type: EWebSocketEvent.PING
