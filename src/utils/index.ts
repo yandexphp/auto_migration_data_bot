@@ -20,7 +20,7 @@ export const getEkapUrlAPI = (): string => `${PROTOCOL}://${process.env.EKAP_API
 
 export const getUrlIssueOfProjectByQueryId = (projectId: string, queryId: string | number, pageIndex = 1, perPage?: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/projects/${projectId}/issues?page=${pageIndex}&query_id=${queryId}${perPage ? `&per_page=${perPage}` : ''}`
 
-export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/issues/${id}.xml?include=attachments`
+export const getUrlIssueAttachmentXML = (id: number): string => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/issues/${id}.xml?include=attachments,journals`
 
 export const getUrlUserProfileAttachmentXML = (userId: string) => `${PROTOCOL}://${process.env.BASE_HOSTNAME}/people/${userId}.xml?include=attachments`
 
@@ -427,3 +427,27 @@ export const sortSectionAndInputsByOrders = (formDetails: TFormProcessCustomDeta
 }
 
 export const readFile = (fileName: string) => fs.readFile(fileName, 'utf-8')
+
+export const sendCommentInEkapBPDocument = async <T>(body: T, ekapConfigRequest: RequestInit): Promise<string | null> => {
+    try {
+        console.log('sendCommentInEkapBPDocument', body)
+
+        const response = await fetch(`${getEkapUrlAPI()}/bpm/comment/`, {
+            ...ekapConfigRequest,
+            method: 'POST',
+            body: JSON.stringify(body)
+        })
+
+        const result = await response.json()
+
+        console.log('sendCommentInEkapBPDocument response', response.status, result)
+
+        if(response.status === 200) {
+            return result
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return null
+}

@@ -45,6 +45,7 @@ export type TXml = {
         updated_on: string
         closed_on: string
         attachments: Attachments
+        journals: Journals
     }
 }
 
@@ -359,4 +360,41 @@ export interface IIssue {
     isError: boolean
     isMigrated: boolean
     isSavedOnDisk: boolean
+}
+
+export interface Journals {
+    journal: Comment[]
+    _type: string
+}
+
+export interface Comment {
+    _id: string
+    user: {
+        _id: string
+        _name: string
+    }
+    notes: string
+    created_on: string
+    private_notes: string
+    details: {
+        detail?: CommentDetail[]
+        _type: string
+    }
+}
+
+export interface CommentDetail {
+    old_value: string
+    new_value: string
+    _property: string
+    _name: string
+}
+
+export interface IRequestSendComment {
+    processInstanceId: string
+    userId: string
+    userName?: string
+    value: string
+    updatedBy?: string
+    attachments?: string[]
+    responseComments?: string[]
 }
